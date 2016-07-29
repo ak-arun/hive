@@ -41,7 +41,7 @@ public class MathHelper {
 	}
 
 	public static boolean isFinite(double value) {
-		return Double.isInfinite(value);
+		 return Math.abs(value) <= Double.MAX_VALUE;
 	}
 
 	public static boolean isNaN(double value) {
