@@ -16,28 +16,4 @@ public class ATan2 extends UDF{
 			return null;
 		}
 	  }
-	
-//	public Double evaluate(Double a, Double b) {
-//		if(a==null||b==null){
-//			return null;
-//		}else{
-//			try{
-//				return (Math.atan2(a,b));
-//			}catch(Exception e){
-//				e.printStackTrace();
-//			}
-//			return null;
-//		}
-//	  }
-	
-	
-//	public static void main(String[] args) {
-//		
-//		com.gc.hive.udf.ATan2 a = new com.gc.hive.udf.ATan2();
-//		System.out.println(a.evaluate(26160.1894683912, 15599.1348085999));
-//		
-//		System.out.println(a.evaluate(395.067680399865, 309.634808599949));
-//		
-//		
-//	}
 }
