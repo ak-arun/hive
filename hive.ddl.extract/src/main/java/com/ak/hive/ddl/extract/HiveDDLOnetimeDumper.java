@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -19,15 +21,14 @@ public class HiveDDLOnetimeDumper {
 	
 	List<DDLObject> ddls = null;
 	
-	public static void main(String[] args) throws DBException, FileNotFoundException, IOException {
+	public static void main(String[] args) throws DBException, FileNotFoundException, IOException, SQLException {
 		
 		//TODO loggers
 		
-		int tblCount=10;
-		int dbCount=10;
-		
 		Properties properties = new Properties();
 		properties.load(new FileReader(new File(args[0])));
+		
+		PrintWriter pw = new PrintWriter(new File(properties.getProperty("ddl.out.file")));
 		
 		DAO dao = new DAO();
 		
@@ -47,31 +48,22 @@ public class HiveDDLOnetimeDumper {
 
 			ddls = new ArrayList<DDLObject>();
 			
-			dbCount -= 1;
-			if (dbCount == 0) {
-				break;
-			}
-
-			
 			for (String tbl : dao.getTables(hiveCon, dbName)) {
-				
-				
-
-				tblCount -= 1;
-
-				if (tblCount == 0) {
-					break;
-				}
 
 				ddls.add(new DDLObject(tbl, dbName, dao.getDDL(hiveCon, dbName
 						+ "." + tbl), ts));
 			}
 			
+			for(DDLObject ddl : ddls){
+				pw.println(ddl.getDatabaseName()+"~"+ddl.getTableName()+"~"+ddl.getDdl()+"~"+ddl.getTimestamp());
+			}
+			ddls.clear();
+			pw.flush();
 			
 		}
 		
-		
-		
+		pw.close();
+		hiveCon.close();
 		
 		/*
 		DBConfig confPg = new DBConfig();

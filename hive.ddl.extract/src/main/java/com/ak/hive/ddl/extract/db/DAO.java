@@ -72,11 +72,12 @@ public class DAO {
 	}
 	
 	public  String getDDL(Connection con, String tableName) throws DBException{
+		ddl="";
 		try{
 			statement = con.createStatement();
 			rs = statement.executeQuery(Constants.SHOW_CREATE_TBL.replace("<tablename>", tableName));
 			while(rs.next()){
-				ddl = rs.getString(1);
+				ddl = ddl+" "+rs.getString(1);
 			}
 		}catch(Exception e){
 			throw new DBException(e);
