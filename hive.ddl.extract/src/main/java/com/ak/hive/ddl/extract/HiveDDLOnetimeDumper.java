@@ -17,6 +17,8 @@ import com.ak.hive.ddl.extract.exception.DBException;
 
 public class HiveDDLOnetimeDumper {
 	
+	List<DDLObject> ddls = null;
+	
 	public static void main(String[] args) throws DBException, FileNotFoundException, IOException {
 		
 		//TODO loggers
@@ -26,6 +28,8 @@ public class HiveDDLOnetimeDumper {
 		
 		Properties properties = new Properties();
 		properties.load(new FileReader(new File(args[0])));
+		
+		DAO dao = new DAO();
 		
 		long ts = System.currentTimeMillis();
 		
@@ -39,14 +43,19 @@ public class HiveDDLOnetimeDumper {
 		
 		Connection hiveCon = new ConnectionFactory(confHive).getConnectionManager(Constants.DBTYPE_HIVE).getConnection();
 		
-		for (String dbName : DAO.getDatabases(hiveCon)) {
+		for (String dbName : dao.getDatabases(hiveCon)) {
 
+			ddls = new ArrayList<DDLObject>();
+			
 			dbCount -= 1;
 			if (dbCount == 0) {
 				break;
 			}
 
-			for (String tbl : DAO.getTables(hiveCon, dbName)) {
+			
+			for (String tbl : dao.getTables(hiveCon, dbName)) {
+				
+				
 
 				tblCount -= 1;
 
@@ -54,15 +63,15 @@ public class HiveDDLOnetimeDumper {
 					break;
 				}
 
-				ddls.add(new DDLObject(tbl, dbName, DAO.getDDL(hiveCon, dbName
+				ddls.add(new DDLObject(tbl, dbName, dao.getDDL(hiveCon, dbName
 						+ "." + tbl), ts));
 			}
+			
+			
 		}
 		
 		
-		for(DDLObject ddl : ddls){
-			System.out.println(ddl);
-		}
+		
 		
 		/*
 		DBConfig confPg = new DBConfig();

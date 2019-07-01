@@ -13,15 +13,17 @@ import com.ak.hive.ddl.extract.exception.DBException;
 
 public class DAO {
 	
-	private static PreparedStatement ps = null;
 	
-	private static List<String> dbNames = null;
-	private static List<String> tblNames = null;
-	private static ResultSet rs=null;
-	private static Statement statement=null;
-	private static String ddl=null;
+	
+	 PreparedStatement ps = null;
+	
+	List<String> dbNames = null;
+	 List<String> tblNames = null;
+	 ResultSet rs=null;
+	Statement statement=null;
+	 String ddl=null;
 
-	public static boolean executeInsert(Connection con, List<DDLObject> ddls, String postGressTable) throws DBException{
+	public  boolean executeInsert(Connection con, List<DDLObject> ddls, String postGressTable) throws DBException{
 		try{
 			ps = con.prepareStatement(Constants.INSERT.replace("<tablename>", postGressTable));
 			for(DDLObject ddl : ddls){
@@ -39,7 +41,7 @@ public class DAO {
 	}
 	
 	
-	public static List<String> getDatabases(Connection con)throws DBException{
+	public  List<String> getDatabases(Connection con)throws DBException{
 		dbNames = new ArrayList<String>();
 		try{
 			rs = con.createStatement().executeQuery(Constants.SHOW_DBS);
@@ -52,7 +54,7 @@ public class DAO {
 		return dbNames;
 	}
 	
-	public static List<String> getTables(Connection con,String dbName) throws DBException{
+	public  List<String> getTables(Connection con,String dbName) throws DBException{
 		tblNames = new ArrayList<String>();
 		try{
 			statement = con.createStatement();
@@ -69,17 +71,17 @@ public class DAO {
 		
 	}
 	
-	public static String getDDL(Connection con, String tableName) throws DBException{
+	public  String getDDL(Connection con, String tableName) throws DBException{
 		try{
 			statement = con.createStatement();
 			rs = statement.executeQuery(Constants.SHOW_CREATE_TBL.replace("<tablename>", tableName));
 			while(rs.next()){
 				ddl = rs.getString(1);
-				break;
 			}
 		}catch(Exception e){
 			throw new DBException(e);
 		}
+		System.out.println(ddl);
 		return ddl;
 	}
 	
