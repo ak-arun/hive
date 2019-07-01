@@ -82,7 +82,6 @@ public class DAO {
 		}catch(Exception e){
 			throw new DBException(e);
 		}
-		System.out.println(ddl);
 		return ddl;
 	}
 	
