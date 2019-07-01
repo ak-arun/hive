@@ -7,7 +7,7 @@ public class DDLExtractDriver {
 		
 		
 		HiveDDLExtractor extractor = new HiveDDLExtractor();
-		extractor.extract("filename");
+		extractor.extract("properties.txt");
 		
 		
 	}
