@@ -83,7 +83,7 @@ public class HiveDDLOnetimeDumper {
 		
 		latch.await();
 		
-		//executor.shutdown();
+		executor.shutdown();
 		
 		System.out.println("Executor Completed : "+Thread.currentThread().getId()+" "+new Date());
 		
