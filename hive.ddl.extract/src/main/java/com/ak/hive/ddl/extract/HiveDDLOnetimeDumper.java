@@ -8,18 +8,24 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import com.ak.hive.ddl.extract.db.ConnectionFactory;
 import com.ak.hive.ddl.extract.db.DAO;
 import com.ak.hive.ddl.extract.entity.DBConfig;
 import com.ak.hive.ddl.extract.entity.DDLObject;
 import com.ak.hive.ddl.extract.exception.DBException;
+import com.google.common.collect.Iterables;
 
 public class HiveDDLOnetimeDumper {
 	
 	List<DDLObject> ddls = null;
+	
+	
 	
 	public static void main(String[] args) throws DBException, FileNotFoundException, IOException, SQLException {
 		
@@ -28,7 +34,7 @@ public class HiveDDLOnetimeDumper {
 		Properties properties = new Properties();
 		properties.load(new FileReader(new File(args[0])));
 		
-		PrintWriter pw = new PrintWriter(new File(properties.getProperty("ddl.out.file")));
+		//PrintWriter pw = new PrintWriter(new File(properties.getProperty("ddl.out.file")));
 		
 		DAO dao = new DAO();
 		
@@ -42,28 +48,36 @@ public class HiveDDLOnetimeDumper {
 		
 		List<DDLObject> ddls = new ArrayList<DDLObject>();
 		
+		
+		
+		
 		Connection hiveCon = new ConnectionFactory(confHive).getConnectionManager(Constants.DBTYPE_HIVE).getConnection();
 		
-		for (String dbName : dao.getDatabases(hiveCon)) {
-
-			ddls = new ArrayList<DDLObject>();
-			
-			for (String tbl : dao.getTables(hiveCon, dbName)) {
-
-				ddls.add(new DDLObject(tbl, dbName, dao.getDDL(hiveCon, dbName
-						+ "." + tbl), ts));
+		System.out.println("Query Start  : "+Thread.currentThread().getId()+" "+new Date());
+		
+		for(String db : dao.getDatabases(hiveCon)){
+			for (String table : dao.getTables(hiveCon, db)){
+				ddls.add(new DDLObject(table, db, "", ts));
 			}
-			
-			for(DDLObject ddl : ddls){
-				pw.println(ddl.getDatabaseName()+"~"+ddl.getTableName()+"~"+ddl.getDdl()+"~"+ddl.getTimestamp());
-			}
-			ddls.clear();
-			pw.flush();
-			
 		}
 		
-		pw.close();
+		System.out.println("Tables Listed  : "+Thread.currentThread().getId()+" "+new Date());
+		
+		int threadCount = Integer.parseInt(properties.getProperty("thread.count"));
+				
+		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadCount);
+		
+		Iterable<List<DDLObject>> ddlPartitions = Iterables.partition(ddls, threadCount);
+		for(List<DDLObject> ddlObjects : ddlPartitions){
+			executor.execute(new DDLPersist(ddlObjects, dao, hiveCon, null, ""));
+		}
+		
+		executor.shutdown();
+		
+		System.out.println("Executor Completed : "+Thread.currentThread().getId()+" "+new Date());
+		
 		hiveCon.close();
+		
 		
 		/*
 		DBConfig confPg = new DBConfig();

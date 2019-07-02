@@ -51,6 +51,7 @@ public class DAO {
 		}catch(Exception e){
 			throw new DBException(e);
 		}
+		System.out.println("Returning "+dbNames.size()+" db names");
 		return dbNames;
 	}
 	
@@ -67,6 +68,7 @@ public class DAO {
 		}catch ( Exception e){
 			throw new DBException(e);
 		}
+		System.out.println("Returning "+tblNames.size()+" table names for db "+dbName);
 		return tblNames;
 		
 	}

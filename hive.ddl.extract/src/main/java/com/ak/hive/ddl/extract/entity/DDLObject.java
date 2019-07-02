@@ -17,12 +17,18 @@ public class DDLObject {
 		this.tableName = tableName;
 		this.databaseName = databaseName;
 		this.ddl = ddl;
+		this.time=time;
 		this.timestamp = new Timestamp(time);
 	}
 	private String tableName;
 	private String databaseName;
 	private String ddl;
 	private Timestamp timestamp;
+	private long time;
+	
+	public long getTime(){
+		return time;
+	}
 	
 	public String getTableName() {
 		return tableName;

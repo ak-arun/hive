@@ -13,6 +13,7 @@ public class Constants {
 	public static final String INSERT = "insert into <tablename> values (?,?,?,?)";
 	public static final String USE_DBS="use <databasename>";
 	
-	
+	public static final String QUIT = "QUIT";
+	public static final long QUIT_TS=-1l;
 
 }
