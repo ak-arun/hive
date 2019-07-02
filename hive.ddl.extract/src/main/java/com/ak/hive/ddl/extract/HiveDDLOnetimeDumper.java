@@ -63,10 +63,15 @@ public class HiveDDLOnetimeDumper {
 		}
 		
 		System.out.println("Tables Listed  : "+Thread.currentThread().getId()+" "+new Date());
+		System.out.println("Total Tables "+ddls.size()+" "+new Date());
 		
 		int threadCount = Integer.parseInt(properties.getProperty("thread.count"));
 		int batchCount = Integer.parseInt(properties.getProperty("batch.count"));
 		
+		System.out.println("threadCount "+threadCount+" "+new Date());
+		System.out.println("batchCount "+batchCount+" "+new Date());
+		
+		/*
 		CountDownLatch latch = new CountDownLatch(batchCount);
 				
 		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadCount);
@@ -84,6 +89,8 @@ public class HiveDDLOnetimeDumper {
 		//executor.shutdown();
 		
 		System.out.println("Executor Completed : "+Thread.currentThread().getId()+" "+new Date());
+		
+		*/
 		
 		hiveCon.close();
 		
