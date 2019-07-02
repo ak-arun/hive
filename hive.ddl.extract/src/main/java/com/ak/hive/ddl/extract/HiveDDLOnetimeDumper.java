@@ -72,7 +72,9 @@ public class HiveDDLOnetimeDumper {
 		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadCount);
 		
 		Iterable<List<DDLObject>> ddlPartitions = Iterables.partition(ddls, batchCount);
+		
 		for(List<DDLObject> ddlObjects : ddlPartitions){
+			System.out.println("Executor Trigger "+new Date());
 			executor.execute(new DDLPersist(ddlObjects, confHive, null, "",latch));
 		}
 		

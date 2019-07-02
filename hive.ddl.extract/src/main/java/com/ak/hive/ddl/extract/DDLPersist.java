@@ -1,6 +1,7 @@
 package com.ak.hive.ddl.extract;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -37,17 +38,18 @@ public class DDLPersist implements Runnable{
 
 	private void process() {
 		
-		System.out.println("Batch Start  : "+Thread.currentThread().getId()+" "+new Date());
+		//System.out.println("Batch Start  : "+Thread.currentThread().getId()+" "+new Date());
 		try{
 			connectionHive = new ConnectionFactory(dbConfig).getConnectionManager(Constants.DBTYPE_HIVE).getConnection();
 			dao = new DAO();
+			ddlsProcessed = new ArrayList<DDLObject>();
 			for(DDLObject o : ddls){
 				ddlString = dao.getDDL(connectionHive, o.getDatabaseName()+"."+o.getTableName());
 				o.setDdl(ddlString);
 				ddlsProcessed.add(o);
 			}
 			latch.countDown();
-			System.out.println("Batch End  : "+Thread.currentThread().getId()+" "+new Date());	
+			//System.out.println("Batch End  : "+Thread.currentThread().getId()+" "+new Date());	
 			//dao.executeInsert(connectionPostgres, ddlsProcessed, postGressTable);
 			connectionHive.close();
 		}catch(Exception e){
