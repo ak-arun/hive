@@ -28,9 +28,8 @@ public class DDLPersist implements Runnable{
 	private Connection hiveCon;
 	
 	
-	public DDLPersist(List<DDLObject> ddls, DAO dao, DBConfig dbConfig,Connection connectionPostgres,String postGressTable, CountDownLatch latch ) {
+	public DDLPersist(List<DDLObject> ddls, DBConfig dbConfig,Connection connectionPostgres,String postGressTable, CountDownLatch latch ) {
 		this.ddls=ddls;
-		this.dao=dao;
 		this.dbConfig=dbConfig;
 		this.connectionPostgres=connectionPostgres;
 		this.postGressTable=postGressTable;
@@ -42,6 +41,7 @@ public class DDLPersist implements Runnable{
 		System.out.println("Batch Start  : "+Thread.currentThread().getId()+" "+new Date());
 		try{
 			hiveCon = new ConnectionFactory(dbConfig).getConnectionManager(Constants.DBTYPE_HIVE).getConnection();
+			dao = new DAO();
 			System.out.println("Hive Con  : "+Thread.currentThread().getId()+" "+hiveCon+" "+new Date());
 			for(DDLObject o : ddls){
 				ddlString = dao.getDDL(connectionHive, o.getDatabaseName()+"."+o.getTableName());
