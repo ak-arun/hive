@@ -65,18 +65,15 @@ public class HiveDDLOnetimeDumper {
 		System.out.println("Tables Listed  : "+Thread.currentThread().getId()+" "+new Date());
 		System.out.println("Total Tables "+ddls.size()+" "+new Date());
 		
-		int threadCount = Integer.parseInt(properties.getProperty("thread.count"));
-		int batchCount = Integer.parseInt(properties.getProperty("batch.count"));
+		int threadCount = Integer.parseInt(properties.getProperty("num.executor"));
+		int batchCount = Integer.parseInt(properties.getProperty("max.items.per.batch"));
 		
-		System.out.println("threadCount "+threadCount+" "+new Date());
-		System.out.println("batchCount "+batchCount+" "+new Date());
-		
-		/*
-		CountDownLatch latch = new CountDownLatch(batchCount);
 				
 		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadCount);
 		
 		Iterable<List<DDLObject>> ddlPartitions = Iterables.partition(ddls, batchCount);
+		
+		CountDownLatch latch = new CountDownLatch(Iterables.size(ddlPartitions));
 		
 		for(List<DDLObject> ddlObjects : ddlPartitions){
 			System.out.println("Executor Trigger "+new Date());
@@ -90,7 +87,7 @@ public class HiveDDLOnetimeDumper {
 		
 		System.out.println("Executor Completed : "+Thread.currentThread().getId()+" "+new Date());
 		
-		*/
+		
 		
 		hiveCon.close();
 		
