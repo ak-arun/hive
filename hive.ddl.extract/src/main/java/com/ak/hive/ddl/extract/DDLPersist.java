@@ -5,7 +5,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import com.ak.hive.ddl.extract.db.ConnectionFactory;
 import com.ak.hive.ddl.extract.db.DAO;
+import com.ak.hive.ddl.extract.entity.DBConfig;
 import com.ak.hive.ddl.extract.entity.DDLObject;
 
 public class DDLPersist implements Runnable{
@@ -22,20 +24,24 @@ public class DDLPersist implements Runnable{
 	private String ddlString;
 	private String postGressTable;
 	private CountDownLatch latch;
+	private DBConfig dbConfig;
+	private Connection hiveCon;
 	
 	
-	public DDLPersist(List<DDLObject> ddls, DAO dao, Connection connectionHive,Connection connectionPostgres,String postGressTable, CountDownLatch latch ) {
+	public DDLPersist(List<DDLObject> ddls, DAO dao, DBConfig dbConfig,Connection connectionPostgres,String postGressTable, CountDownLatch latch ) {
 		this.ddls=ddls;
 		this.dao=dao;
-		this.connectionHive=connectionHive;
+		this.dbConfig=dbConfig;
 		this.connectionPostgres=connectionPostgres;
 		this.postGressTable=postGressTable;
 		this.latch=latch;
 	}
 
 	private void process() {
+		
 		System.out.println("Batch Start  : "+Thread.currentThread().getId()+" "+new Date());
 		try{
+			hiveCon = new ConnectionFactory(dbConfig).getConnectionManager(Constants.DBTYPE_HIVE).getConnection();
 			for(DDLObject o : ddls){
 				ddlString = dao.getDDL(connectionHive, o.getDatabaseName()+"."+o.getTableName());
 				o.setDdl(ddlString);
@@ -44,7 +50,7 @@ public class DDLPersist implements Runnable{
 			latch.countDown();
 			System.out.println("Batch End  : "+Thread.currentThread().getId()+" "+new Date());	
 			//dao.executeInsert(connectionPostgres, ddlsProcessed, postGressTable);
-			
+			hiveCon.close();
 		}catch(Exception e){
 			e.printStackTrace();
 		}
