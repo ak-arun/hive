@@ -73,7 +73,7 @@ public class HiveDDLOnetimeDumper {
 		
 		Iterable<List<DDLObject>> ddlPartitions = Iterables.partition(ddls, batchCount);
 		for(List<DDLObject> ddlObjects : ddlPartitions){
-			executor.execute(new DDLPersist(ddlObjects, dao, confHive, null, "",latch));
+			executor.execute(new DDLPersist(ddlObjects, confHive, null, "",latch));
 		}
 		
 		
