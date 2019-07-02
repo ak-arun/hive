@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -27,7 +28,7 @@ public class HiveDDLOnetimeDumper {
 	
 	
 	
-	public static void main(String[] args) throws DBException, FileNotFoundException, IOException, SQLException {
+	public static void main(String[] args) throws DBException, FileNotFoundException, IOException, SQLException, InterruptedException {
 		
 		//TODO loggers
 		
@@ -64,15 +65,21 @@ public class HiveDDLOnetimeDumper {
 		System.out.println("Tables Listed  : "+Thread.currentThread().getId()+" "+new Date());
 		
 		int threadCount = Integer.parseInt(properties.getProperty("thread.count"));
+		int batchCount = Integer.parseInt(properties.getProperty("batch.count"));
+		
+		CountDownLatch latch = new CountDownLatch(batchCount);
 				
 		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(threadCount);
 		
-		Iterable<List<DDLObject>> ddlPartitions = Iterables.partition(ddls, threadCount);
+		Iterable<List<DDLObject>> ddlPartitions = Iterables.partition(ddls, batchCount);
 		for(List<DDLObject> ddlObjects : ddlPartitions){
-			executor.execute(new DDLPersist(ddlObjects, dao, hiveCon, null, ""));
+			executor.execute(new DDLPersist(ddlObjects, dao, hiveCon, null, "",latch));
 		}
 		
-		executor.shutdown();
+		
+		latch.await();
+		
+		//executor.shutdown();
 		
 		System.out.println("Executor Completed : "+Thread.currentThread().getId()+" "+new Date());
 		
