@@ -24,5 +24,16 @@ public class UserQueryExtracterHook implements ExecuteWithHookContext {
 	private String getHookLog(String user, String query){
 		return "Starting UserQueryExtracterHook: User <"+user+">attempted command: <"+query+"> :Ending UserQueryExtracterHook";
 	}
+	
+	private boolean shareResult(){
+		
+		try{
+			
+			return true;
+		}catch(Exception e){
+			
+		}
+		return false;
+	}
 
 }
