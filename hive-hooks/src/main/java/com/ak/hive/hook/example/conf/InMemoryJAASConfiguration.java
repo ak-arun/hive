@@ -191,7 +191,7 @@ public final class InMemoryJAASConfiguration extends Configuration {
                 }
 
 
-                Map<String, String> options = new HashMap<>();
+                Map<String, String> options = new HashMap<String, String>();
                 String optionPrefix = keyPrefix + JAAS_CONFIG_LOGIN_OPTIONS_PREFIX + ".";
                 int optionPrefixLen = optionPrefix.length();
                 for (String key : properties.stringPropertyNames()) {
@@ -229,7 +229,7 @@ public final class InMemoryJAASConfiguration extends Configuration {
 
                 List<AppConfigurationEntry> retList = applicationConfigEntryMap.get(jaasClient);
                 if (retList == null) {
-                    retList = new ArrayList<>();
+                    retList = new ArrayList<AppConfigurationEntry>();
                     applicationConfigEntryMap.put(jaasClient, retList);
                 }
 

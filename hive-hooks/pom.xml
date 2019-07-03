@@ -39,7 +39,7 @@
 		</dependency>
 	</dependencies>
 	
-	 <build>
+	<!--  <build>
 		<finalName>kafka_test</finalName>
 		<plugins>
 			<plugin>
@@ -69,6 +69,6 @@
 			</plugin>
 
 		</plugins>
-	</build> 
+	</build>  -->
 	
 </project>
