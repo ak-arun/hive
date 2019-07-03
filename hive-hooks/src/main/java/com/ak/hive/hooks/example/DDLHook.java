@@ -27,6 +27,7 @@ public class DDLHook implements ExecuteWithHookContext {
 
 	public void run(HookContext hookContext) throws Exception {
 		
+		
 		HiveOperation  oper    = OPERATION_MAP.get(hookContext.getOperationName());
 		switch (oper) {
 		
@@ -53,7 +54,7 @@ public class DDLHook implements ExecuteWithHookContext {
 		producer = new KafkaProducer(p);
 		ProducerRecord record = new ProducerRecord("blah", message);
 		Future sentResult = producer.send(record);
-		//todo
+		
 	}
 	
 
