@@ -1,5 +1,7 @@
 package com.ak.hive.hooks.example;
 
+import java.io.PrintStream;
+import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,6 +9,8 @@ import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.hive.ql.hooks.ExecuteWithHookContext;
 import org.apache.hadoop.hive.ql.hooks.HookContext;
 import org.apache.hadoop.hive.ql.hooks.HookContext.HookType;
+import org.apache.hadoop.hive.ql.session.SessionState;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -27,8 +31,17 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 	@Override
 	public void run(HookContext hookContext) throws Exception {
 
-		if (hookContext.getHookType() == HookType.POST_EXEC_HOOK) {
+		//if (hookContext.getHookType() == HookType.POST_EXEC_HOOK) {
+			
+			
+			
+		    
 			query = hookContext.getQueryPlan().getQueryStr();
+			
+			
+			System.out.println("Sysout Log : Query "+query);
+		    PrintStream stream = SessionState.getConsole().getOutStream();
+		    stream.println("Console Log : Query "+query);
 
 			configuration = hookContext.getConf();
 
@@ -45,6 +58,9 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 			propertyMap.put(HookConstants.ZOOKEEPER_CONNECT,configuration.get(HookConstants.DDL_HOOK_KAFKA_ZK_CONNECT));
 			propertyMap.put(HookConstants.SASL_KERBEROS_SERVICE_NAME,configuration.get(HookConstants.DDL_HOOK_KAFKA_SERVICE_NAME));
 			propertyMap.put(HookConstants.SECURITY_PROTOCOL, configuration.get(HookConstants.DDL_HOOK_KAFKA_SECURITY_PROTOCOL));
+			
+			String principal=configuration.get(HookConstants.DDL_HOOK_KAFKA_USER_PRINCIPAL);
+			principal=principal.replace("_HOST", InetAddress.getLocalHost().getCanonicalHostName());
 
 			/*
 			 * Dynamic JAAS Configuration as in
@@ -56,7 +72,7 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 									.replace(
 											"<KAFKA_SERVICE_KEYTAB>",configuration.get(HookConstants.DDL_HOOK_KAFKA_USER_KEYTAB))
 									.replace(
-											"<KAFKA_SERVICE_PRINCIPAL>",configuration.get(HookConstants.DDL_HOOK_KAFKA_USER_PRINCIPAL)));
+											"<KAFKA_SERVICE_PRINCIPAL>",principal));
 			
 		  // TODO move to an async executor
 			
@@ -76,7 +92,7 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 				producer.close();
 			}
 
-		}
+		//}
 
 	}
 
