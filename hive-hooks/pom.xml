@@ -39,7 +39,7 @@
 		</dependency>
 	</dependencies>
 	
-	<!-- <build>
+	 <build>
 		<finalName>kafka_test</finalName>
 		<plugins>
 			<plugin>
@@ -52,7 +52,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<mainClass>com.ak.hive.hooks.example.TestKafka</mainClass>
+							<mainClass>com.ak.hive.hooks.example.TestKafka2</mainClass>
 						</manifest>
 					</archive>
 
@@ -69,6 +69,6 @@
 			</plugin>
 
 		</plugins>
-	</build> -->
+	</build> 
 	
 </project>
