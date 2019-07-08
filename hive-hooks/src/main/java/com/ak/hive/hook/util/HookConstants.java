@@ -1,8 +1,9 @@
 package com.ak.hive.hook.util;
 
+
 public class HookConstants {
 
-	public static final String JAAS_CONFIG="com.sun.security.auth.module.Krb5LoginModule required "
+	public static final String JAAS_CONFIG_WITH_KEYTAB="com.sun.security.auth.module.Krb5LoginModule required "
             + "useTicketCache=false "
             + "renewTicket=true "
             + "serviceName=\"<KAFKA_SERVICE_NAME>\" "
@@ -10,7 +11,7 @@ public class HookConstants {
             + "keyTab=\"<KAFKA_SERVICE_KEYTAB>\" "
             + "principal=\"<KAFKA_SERVICE_PRINCIPAL>\";";
 	
-	public static final String JAAS_CONFIG2="com.sun.security.auth.module.Krb5LoginModule required "
+	public static final String JAAS_CONFIG_NO_KEYTAB="com.sun.security.auth.module.Krb5LoginModule required "
             + "loginModuleName=com.sun.security.auth.module.Krb5LoginModule "
             + "renewTicket=true "
             + "serviceName=\"<KAFKA_SERVICE_NAME>\" "
@@ -18,17 +19,6 @@ public class HookConstants {
             + "storeKey=false "
             + "loginModuleControlFlag=required "
             + "useTicketCache=true;";
-	
-	
-	/*
-	 * atlas.jaas.KafkaClient.loginModuleControlFlag=required
-atlas.jaas.KafkaClient.loginModuleName=com.sun.security.auth.module.Krb5LoginModule
-atlas.jaas.KafkaClient.option.renewTicket=True
-atlas.jaas.KafkaClient.option.serviceName=kafka
-atlas.jaas.KafkaClient.option.storeKey=false
-atlas.jaas.KafkaClient.option.useKeyTab=false
-atlas.jaas.KafkaClient.option.useTicketCache=True
-	 * */
 	
 	public static final String DDL_HOOK_KAFKA_USER_PRINCIPAL = "ddl.hook.kafka.userPrincipal";
 	public static final String DDL_HOOK_KAFKA_USER_KEYTAB = "ddl.hook.kafka.userKeytab";
@@ -47,4 +37,6 @@ atlas.jaas.KafkaClient.option.useTicketCache=True
 	public static final String DDL_HOOK_KAFKA_SSLCONTEXT_TRUSTSTORE_PASSWORD = "ddl.hook.kafka.sslcontext.truststore.password";
 	public static final String DDL_HOOK_KAFKA_SSLCONTEXT_TRUSTSTORE_FILE = "ddl.hook.kafka.sslcontext.truststore.file";
 	public static final String DDL_HOOK_KAFKA_TOPIC_NAME = "ddl.hook.kafka.topicName";
+	public static final String HIVE_SERVER2_KERBEROS_KEYTAB = "hive.server2.authentication.kerberos.keytab";
+	public static final String HIVE_SERVER2_KERBEROS_PRINCIPAL ="hive.server2.authentication.kerberos.principal";
 }
