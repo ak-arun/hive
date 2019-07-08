@@ -1,6 +1,7 @@
 package com.ak.hive.hooks.example;
 
 import java.io.PrintStream;
+import java.net.InetAddress;
 import java.security.PrivilegedExceptionAction;
 import java.util.HashMap;
 import java.util.Map;
@@ -73,8 +74,9 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 			
 			if(UserGroupInformation.isLoginKeytabBased()){
 				
-				LOG.info("KEYTAB: "+configuration.get(HookConstants.HIVE_SERVER2_KERBEROS_KEYTAB));
-				LOG.info("PRINCIPAL: "+configuration.get(HookConstants.HIVE_SERVER2_KERBEROS_PRINCIPAL));
+				LOG.info("HiveDDLGrabberHook KEYTAB: "+configuration.get(HookConstants.HIVE_SERVER2_KERBEROS_KEYTAB));
+				LOG.info("HiveDDLGrabberHook PRINCIPAL: "+configuration.get(HookConstants.HIVE_SERVER2_KERBEROS_PRINCIPAL));
+				LOG.info("HiveDDLGrabberHook HOSTNAME: "+InetAddress.getLocalHost().getCanonicalHostName());
 				
 				propertyMap.put(SaslConfigs.SASL_JAAS_CONFIG,HookConstants.JAAS_CONFIG_WITH_KEYTAB
 						.replace(
