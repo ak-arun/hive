@@ -10,6 +10,26 @@ public class HookConstants {
             + "keyTab=\"<KAFKA_SERVICE_KEYTAB>\" "
             + "principal=\"<KAFKA_SERVICE_PRINCIPAL>\";";
 	
+	public static final String JAAS_CONFIG2="com.sun.security.auth.module.Krb5LoginModule required "
+            + "loginModuleName=com.sun.security.auth.module.Krb5LoginModule "
+            + "renewTicket=true "
+            + "serviceName=\"<KAFKA_SERVICE_NAME>\" "
+            + "useKeyTab=false "
+            + "storeKey=false "
+            + "loginModuleControlFlag=required "
+            + "useTicketCache=true;";
+	
+	
+	/*
+	 * atlas.jaas.KafkaClient.loginModuleControlFlag=required
+atlas.jaas.KafkaClient.loginModuleName=com.sun.security.auth.module.Krb5LoginModule
+atlas.jaas.KafkaClient.option.renewTicket=True
+atlas.jaas.KafkaClient.option.serviceName=kafka
+atlas.jaas.KafkaClient.option.storeKey=false
+atlas.jaas.KafkaClient.option.useKeyTab=false
+atlas.jaas.KafkaClient.option.useTicketCache=True
+	 * */
+	
 	public static final String DDL_HOOK_KAFKA_USER_PRINCIPAL = "ddl.hook.kafka.userPrincipal";
 	public static final String DDL_HOOK_KAFKA_USER_KEYTAB = "ddl.hook.kafka.userKeytab";
 	public static final String DDL_HOOK_KAFKA_SECURITY_PROTOCOL = "ddl.hook.kafka.security.protocol";

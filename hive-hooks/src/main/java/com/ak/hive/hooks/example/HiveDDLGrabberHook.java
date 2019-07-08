@@ -2,6 +2,8 @@ package com.ak.hive.hooks.example;
 
 import java.io.PrintStream;
 import java.net.InetAddress;
+import java.security.PrivilegedAction;
+import java.security.PrivilegedExceptionAction;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,27 +61,57 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 			propertyMap.put(HookConstants.SASL_KERBEROS_SERVICE_NAME,configuration.get(HookConstants.DDL_HOOK_KAFKA_SERVICE_NAME));
 			propertyMap.put(HookConstants.SECURITY_PROTOCOL, configuration.get(HookConstants.DDL_HOOK_KAFKA_SECURITY_PROTOCOL));
 			
-			String principal=configuration.get(HookConstants.DDL_HOOK_KAFKA_USER_PRINCIPAL);
-			principal=principal.replace("_HOST", InetAddress.getLocalHost().getCanonicalHostName());
+			//String principal=configuration.get(HookConstants.DDL_HOOK_KAFKA_USER_PRINCIPAL);
+			//principal=principal.replace("_HOST", InetAddress.getLocalHost().getCanonicalHostName());
 
 			/*
 			 * Dynamic JAAS Configuration as in
 			 * https://cwiki.apache.org/confluence/display/KAFKA/KIP-85%3A+Dynamic+JAAS+configuration+for+Kafka+clients
 			 */
-			propertyMap.put(SaslConfigs.SASL_JAAS_CONFIG,HookConstants.JAAS_CONFIG
+			/*propertyMap.put(SaslConfigs.SASL_JAAS_CONFIG,HookConstants.JAAS_CONFIG
 									.replace(
 											"<KAFKA_SERVICE_NAME>",configuration.get(HookConstants.DDL_HOOK_KAFKA_SERVICE_NAME))
 									.replace(
 											"<KAFKA_SERVICE_KEYTAB>",configuration.get(HookConstants.DDL_HOOK_KAFKA_USER_KEYTAB))
 									.replace(
-											"<KAFKA_SERVICE_PRINCIPAL>",principal));
+											"<KAFKA_SERVICE_PRINCIPAL>",principal));*/
 			
-		  // TODO move to an async executor
+			
+			propertyMap.put(SaslConfigs.SASL_JAAS_CONFIG,HookConstants.JAAS_CONFIG2
+					.replace(
+							"<KAFKA_SERVICE_NAME>",configuration.get(HookConstants.DDL_HOOK_KAFKA_SERVICE_NAME)));
+			
+		  // --------- TODO move to an async executor
 			
 			if(isDDL()){
-				KafkaProducer<String, String> producer = new KafkaProducer<String,String>(propertyMap);
-				ProducerRecord<String, String> record = new ProducerRecord<String, String>(configuration.get(HookConstants.DDL_HOOK_KAFKA_TOPIC_NAME), query);
-				producer.send(record , new Callback() {
+				final KafkaProducer<String, String> producer = new KafkaProducer<String,String>(propertyMap);
+				final ProducerRecord<String, String> record = new ProducerRecord<String, String>(configuration.get(HookConstants.DDL_HOOK_KAFKA_TOPIC_NAME), query);
+				
+				
+				UserGroupInformation ugi = hookContext.getUgi();
+				System.out.println("Sysout Log : UGI "+ugi.getShortUserName());
+				
+				ugi.doAs(new PrivilegedExceptionAction<Object>() {
+
+					@Override
+					public Object run() throws Exception {
+						producer.send(record , new Callback() {
+							
+							@Override
+							public void onCompletion(RecordMetadata metadata, Exception exception) {
+								if(exception!=null){
+									exception.printStackTrace();
+								}
+								
+							}
+						});
+						producer.close();
+						return null;
+					}
+				});
+				
+				
+				/*producer.send(record , new Callback() {
 					
 					@Override
 					public void onCompletion(RecordMetadata metadata, Exception exception) {
@@ -89,7 +121,7 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 						
 					}
 				});
-				producer.close();
+				producer.close();*/
 			}
 
 		//}
