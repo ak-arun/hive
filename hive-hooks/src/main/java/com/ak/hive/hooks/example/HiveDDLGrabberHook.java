@@ -72,6 +72,10 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 			final ProducerRecord<String, String> record = new ProducerRecord<String, String>(configuration.get(HookConstants.DDL_HOOK_KAFKA_TOPIC_NAME), query);
 			
 			if(UserGroupInformation.isLoginKeytabBased()){
+				
+				LOG.info("KEYTAB: "+configuration.get(HookConstants.HIVE_SERVER2_KERBEROS_KEYTAB));
+				LOG.info("PRINCIPAL: "+configuration.get(HookConstants.HIVE_SERVER2_KERBEROS_PRINCIPAL));
+				
 				propertyMap.put(SaslConfigs.SASL_JAAS_CONFIG,HookConstants.JAAS_CONFIG_WITH_KEYTAB
 						.replace(
 								"<KAFKA_SERVICE_NAME>",configuration.get(HookConstants.DDL_HOOK_KAFKA_SERVICE_NAME))
