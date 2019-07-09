@@ -41,16 +41,37 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 
 			query = hookContext.getQueryPlan().getQueryStr();
 			
-			for(ReadEntity input : hookContext.getInputs()){
-				System.out.println("INPUT DB Name "+input.getDatabase());
-				System.out.println("INPUT Table Name "+input.getTable().getCompleteName());
+			try{
+				for(ReadEntity input : hookContext.getInputs()){
+				if(input.getDatabase()==null){
+					System.out.println("INPUT DB Name unknown");
+				}else{
+					System.out.println("INPUT DB Name "+input.getDatabase().getName());
+				}
+				
+				if(input.getTable()==null){
+					System.out.println("INPUT Table Name Unknown");
+				}else{
+					System.out.println("INPUT Table Name "+input.getTable().getTableName());
+				}
 			}
 			
 			for(WriteEntity output :hookContext.getOutputs()){
-				System.out.println("OUTPUT DB Name "+output.getDatabase());
-				System.out.println("OUTPUT Table Name "+output.getTable().getCompleteName());
+				if(output.getDatabase()==null){
+					System.out.println("OUTPUT DB Name unknown");
+				}else{
+					System.out.println("OUTPUT DB Name "+output.getDatabase().getName());
+				}
+				
+				if(output.getTable()==null){
+					System.out.println("OUTPUT Table Name Unknown");
+				}else{
+					System.out.println("OUTPUT Table Name "+output.getTable().getTableName());
+				}
 			}
-			
+			}catch (Exception e){
+				e.printStackTrace();
+			}
 			
 			
 			configuration = hookContext.getConf();
