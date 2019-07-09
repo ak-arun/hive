@@ -27,6 +27,8 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 
 
 	private String query;
+	private String tableName;
+	private String databaseName;
 	private HiveConf configuration;
 	private Map<String, Object> propertyMap;
 	private KafkaProducer<String, String> producer;
@@ -40,40 +42,6 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 	public void run(HookContext hookContext) throws Exception {
 
 			query = hookContext.getQueryPlan().getQueryStr();
-			System.out.println("Query : "+hookContext.getHookType());
-			
-			try{
-				for(ReadEntity input : hookContext.getInputs()){
-				if(input.getDatabase()==null){
-					System.out.println("INPUT DB Name unknown");
-				}else{
-					System.out.println("INPUT DB Name "+input.getDatabase().getName());
-				}
-				
-				if(input.getTable()==null){
-					System.out.println("INPUT Table Name Unknown");
-				}else{
-					System.out.println("INPUT Table Name "+input.getTable().getTableName());
-				}
-			}
-			
-			for(WriteEntity output :hookContext.getOutputs()){
-				if(output.getDatabase()==null){
-					System.out.println("OUTPUT DB Name unknown"+" "+hookContext.getHookType());
-				}else{
-					System.out.println("OUTPUT DB Name "+output.getDatabase().getName()+" "+hookContext.getHookType());
-				}
-				
-				if(output.getTable()==null){
-					System.out.println("OUTPUT Table Name Unknown"+" "+hookContext.getHookType());
-				}else{
-					System.out.println("OUTPUT Table Name "+output.getTable().getTableName()+" "+hookContext.getHookType());
-				}
-			}
-			}catch (Exception e){
-				e.printStackTrace();
-			}
-			
 			
 			configuration = hookContext.getConf();
 
@@ -97,8 +65,13 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 			
 			
 			if(isDDL()){
+				
+				for(WriteEntity output : hookContext.getOutputs()){
+					databaseName = databaseName==null?(output.getDatabase()!=null?output.getDatabase().getName():null):databaseName;
+					tableName = tableName==null?(output.getTable()!=null?output.getTable().getTableName():null):tableName;
+				}
 			
-			final ProducerRecord<String, String> record = new ProducerRecord<String, String>(configuration.get(DDLGrabberConstants.DDL_HOOK_KAFKA_TOPIC_NAME), query);
+			final ProducerRecord<String, String> record = new ProducerRecord<String, String>(configuration.get(DDLGrabberConstants.DDL_HOOK_KAFKA_TOPIC_NAME), databaseName+"~"+tableName+"~"+query);
 			
 			if(UserGroupInformation.isLoginKeytabBased()){
 				
