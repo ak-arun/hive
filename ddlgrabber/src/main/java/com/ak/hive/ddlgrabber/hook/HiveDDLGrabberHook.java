@@ -40,6 +40,7 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 	public void run(HookContext hookContext) throws Exception {
 
 			query = hookContext.getQueryPlan().getQueryStr();
+			System.out.println("Query : "+hookContext.getHookType());
 			
 			try{
 				for(ReadEntity input : hookContext.getInputs()){
@@ -58,15 +59,15 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 			
 			for(WriteEntity output :hookContext.getOutputs()){
 				if(output.getDatabase()==null){
-					System.out.println("OUTPUT DB Name unknown");
+					System.out.println("OUTPUT DB Name unknown"+" "+hookContext.getHookType());
 				}else{
-					System.out.println("OUTPUT DB Name "+output.getDatabase().getName());
+					System.out.println("OUTPUT DB Name "+output.getDatabase().getName()+" "+hookContext.getHookType());
 				}
 				
 				if(output.getTable()==null){
-					System.out.println("OUTPUT Table Name Unknown");
+					System.out.println("OUTPUT Table Name Unknown"+" "+hookContext.getHookType());
 				}else{
-					System.out.println("OUTPUT Table Name "+output.getTable().getTableName());
+					System.out.println("OUTPUT Table Name "+output.getTable().getTableName()+" "+hookContext.getHookType());
 				}
 			}
 			}catch (Exception e){
