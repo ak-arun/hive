@@ -67,5 +67,4 @@ public class DDLGrabberConstants {
 
 	public static String DDL_HOOK_NOTIFICATION_MAX_RETRY_COUNT="ddl.hook.notification.max.retryCount";
 
-	public static String DDL_HOOK_NOTIFICATION_RETRY_DELAY_MS = "ddl.hook.notification.retryDelay.millis";
 }
