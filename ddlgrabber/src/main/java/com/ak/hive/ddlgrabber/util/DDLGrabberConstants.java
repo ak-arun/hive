@@ -20,6 +20,13 @@ public class DDLGrabberConstants {
             + "loginModuleControlFlag=required "
             + "useTicketCache=true;";
 	
+	
+	public static final String DDL_HOOK_NOTIFICATION_MIN_THREAD = "ddl.hook.notification.minThread";
+	public static final String DDL_HOOK_NOTIFICATION_MAX_THREAD = "ddl.hook.notification.maxThread";
+	public static final String DDL_HOOK_NOTIFICATION_KEEP_ALIVE_TIME_MS = "ddl.hook.notification.keepaliveTime.ms";
+	public static final int SHUTDOWN_HOOK_WAIT_TIME_MS = 3000;
+	public static final String DDL_HOOK_NOTIFICATION_QUEUE_SIZE="ddl.hook.notification.queueSize";
+	
 	public static final String DDL_HOOK_KAFKA_USER_PRINCIPAL = "ddl.hook.kafka.userPrincipal";
 	public static final String DDL_HOOK_KAFKA_USER_KEYTAB = "ddl.hook.kafka.userKeytab";
 	public static final String DDL_HOOK_KAFKA_SECURITY_PROTOCOL = "ddl.hook.kafka.security.protocol";
@@ -53,4 +60,12 @@ public class DDLGrabberConstants {
 	
 	public static final String QUIT = "QUIT";
 	public static final long QUIT_TS=-1l;
+
+	public static final String DDL_HOOK_NOTIFICATION_MAX_POOL_SIZE = "ddl.hook.nitification.max.poolSize";
+
+	public static int SHUTDOWN_HOOK_PRIORITY=30;
+
+	public static String DDL_HOOK_NOTIFICATION_MAX_RETRY_COUNT="ddl.hook.notification.max.retryCount";
+
+	public static String DDL_HOOK_NOTIFICATION_RETRY_DELAY_MS = "ddl.hook.notification.retryDelay.millis";
 }
