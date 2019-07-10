@@ -85,4 +85,23 @@ public class DAO {
 		return ddl;
 	}
 	
+	
+	public List<DDLObject> getDBAndTables(Connection con, String metaQuery,
+			List<DDLObject> ddlSource) throws DBException {
+		long ts = System.currentTimeMillis();
+		try {
+			statement = con.createStatement();
+			rs = statement.executeQuery(metaQuery);
+			while (rs.next()) {
+				ddlSource.add(new DDLObject(rs.getString(1), rs.getString(2),
+						"", ts));
+			}
+		} catch (Exception e) {
+			throw new DBException(e);
+		}
+
+		return ddlSource;
+
+	}
+	
 }

@@ -41,8 +41,6 @@ public class HiveDDLOnetimeGrabber {
 		
 		DAO dao = new DAO();
 		
-		long ts = System.currentTimeMillis();
-		
 		DBConfig confHive = new DBConfig();
 		confHive.setPrincipal(properties.getProperty("hive.user.principal"));
 		confHive.setKeytab(properties.getProperty("hive.user.keytab"));
@@ -53,17 +51,27 @@ public class HiveDDLOnetimeGrabber {
 		
 		
 		
+		DBConfig confMetastore = new DBConfig();
+		confMetastore.setUserName(properties.getProperty("meta.db.user.name"));
+		confMetastore.setPassword(properties.getProperty("meta.db.user.password"));
+		confMetastore.setDriverClassName(properties.getProperty("meta.db.driver.class"));
+		confMetastore.setConnectString(properties.getProperty("meta.db.connection.string"));
+		
+		Connection metastoreConnection = new ConnectionFactory(confMetastore).getConnectionManager(properties.getProperty("meta.db.type")).getConnection();
+		
+		dao.getDBAndTables(metastoreConnection, "select TBL_NAME, NAME from TBLS join DBS on TBLS.DB_ID=DBS.DB_ID", ddls);
+		
 		
 		Connection hiveCon = new ConnectionFactory(confHive).getConnectionManager(DDLGrabberConstants.DBTYPE_HIVE).getConnection();
 		
-		System.out.println("Query Start  : "+Thread.currentThread().getId()+" "+new Date());
+		/*System.out.println("Query Start  : "+Thread.currentThread().getId()+" "+new Date());
 		
 		for(String db : dao.getDatabases(hiveCon)){
 			for (String table : dao.getTables(hiveCon, db)){
 				ddls.add(new DDLObject(table, db, "", ts));
 			}
 		}
-		
+		*/
 		System.out.println("Tables Listed  : "+Thread.currentThread().getId()+" "+new Date());
 		System.out.println("Total Tables "+ddls.size()+" "+new Date());
 		
@@ -110,4 +118,5 @@ public class HiveDDLOnetimeGrabber {
 		
 	}
 
+	
 }
