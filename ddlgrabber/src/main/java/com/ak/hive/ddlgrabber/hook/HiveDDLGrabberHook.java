@@ -42,7 +42,8 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(HiveDDLGrabberHook.class);
 	 
-	// TODO adapt to all kinds of install. Currently coding for SASL_SSL+ ssl trustore only config
+	// TODO adapt to all kinds of install. Current support for SASL_SSL+ ssl trustore configs
+	
 
 	@SuppressWarnings("unchecked")
 	public void run(HookContext hookContext) throws Exception {
@@ -52,6 +53,8 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 			configuration = hookContext.getConf();
 
 			propertyMap = new HashMap<String, Object>();
+			
+			// these configs are to be read from the hive conf, set them in hive-site or per session
 			
 			propertyMap.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG,configuration.get(DDLGrabberConstants.DDL_HOOK_KAFKA_SSLCONTEXT_TRUSTSTORE_FILE));
 			propertyMap.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG,configuration.get(DDLGrabberConstants.DDL_HOOK_KAFKA_SSLCONTEXT_TRUSTSTORE_PASSWORD));
@@ -63,7 +66,13 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 			propertyMap.put(DDLGrabberConstants.SASL_KERBEROS_SERVICE_NAME,configuration.get(DDLGrabberConstants.DDL_HOOK_KAFKA_SERVICE_NAME));
 			propertyMap.put(DDLGrabberConstants.SECURITY_PROTOCOL, configuration.get(DDLGrabberConstants.DDL_HOOK_KAFKA_SECURITY_PROTOCOL));
 			
+			// it is going to be 1 message per run (if ddl) . Need retry ? Or just log if message could not be delivered 
 			
+		/*	int retryCount = configuration.getInt(DDLGrabberConstants.DDL_HOOK_NOTIFICATION_MAX_RETRY_COUNT, 0);
+			propertyMap.put("retries", retryCount);
+			if(retryCount>0){
+				propertyMap.put("enable.idempotence", true);
+			}*/
 			
 			executorService = Executors.newFixedThreadPool(1);
 			
@@ -75,10 +84,13 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 			
 			if(isDDL()){
 				
-			
+			// if is create or alter
+				
 			final ProducerRecord<String, String> record = generateNotificationRecord(hookContext);
+			// json message 
 			
 			if(UserGroupInformation.isLoginKeytabBased()){
+				// as in hs2, use the hive service principal for authorizing kafka writes
 				
 				propertyMap.put(SaslConfigs.SASL_JAAS_CONFIG,DDLGrabberConstants.JAAS_CONFIG_WITH_KEYTAB
 						.replace(
@@ -97,6 +109,7 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 				
 			}
 			else{
+				// as in hive cli, use logged in user name for authorizing kafka writes
 				propertyMap.put(SaslConfigs.SASL_JAAS_CONFIG,DDLGrabberConstants.JAAS_CONFIG_NO_KEYTAB
 						.replace(
 								"<KAFKA_SERVICE_NAME>",configuration.get(DDLGrabberConstants.DDL_HOOK_KAFKA_SERVICE_NAME)));
