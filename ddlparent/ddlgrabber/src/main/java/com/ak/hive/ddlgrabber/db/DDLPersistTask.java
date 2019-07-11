@@ -51,7 +51,7 @@ public class DDLPersistTask implements Runnable{
 				o.setDdl(ddlString);
 				ddlsProcessed.add(o);
 			}
-			ddls.clear();
+			//ddls.clear();
 			latch.countDown();
 			dao.executeInsert(connectionPostgres, ddlsProcessed, postGresTable);
 			LOG.info("Persisted "+ddlsProcessed.size()+" table ddls to table "+postGresTable);
