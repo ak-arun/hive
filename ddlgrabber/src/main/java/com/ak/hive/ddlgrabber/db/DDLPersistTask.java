@@ -27,16 +27,17 @@ public class DDLPersistTask implements Runnable{
 	private DAO dao;
 	private List<DDLObject> ddlsProcessed;
 	private Connection connectionHive;
-	private Connection connectionPostgres;
 	private String ddlString;
 	private String postGresTable;
 	private CountDownLatch latch;
 	private DBConfig dbConfig;
+	private DBConfig destConf;
+	private Connection connectionDest;
 	
-	public DDLPersistTask(List<DDLObject> ddls, DBConfig dbConfig,Connection connectionPostgres,String postGresTable, CountDownLatch latch ) {
+	public DDLPersistTask(List<DDLObject> ddls, DBConfig dbConfig,DBConfig destConf ,String postGresTable, CountDownLatch latch ) {
 		this.ddls=ddls;
 		this.dbConfig=dbConfig;
-		this.connectionPostgres=connectionPostgres;
+		this.destConf=destConf;
 		this.postGresTable=postGresTable;
 		this.latch=latch;
 	}
@@ -44,6 +45,8 @@ public class DDLPersistTask implements Runnable{
 	private void persist() {
 		try{
 			connectionHive = new ConnectionFactory(dbConfig).getConnectionManager(DDLGrabberConstants.DBTYPE_HIVE).getConnection();
+			connectionDest = new ConnectionFactory(destConf).getConnectionManager(destConf.getDbType()).getConnection();
+			
 			System.out.println("Connected to hive "+connectionHive);
 			dao = new DAO();
 			ddlsProcessed = new ArrayList<DDLObject>();
@@ -53,13 +56,15 @@ public class DDLPersistTask implements Runnable{
 				ddlsProcessed.add(o);
 			}
 			System.out.println("Processed DDL for batch "+ddlsProcessed.size());
-			ddls.clear();
-			latch.countDown();
+			//ddls.clear();
+			
 			System.out.println("Executing insert for batch "+ddlsProcessed.size());
-			dao.executeInsert(connectionPostgres, ddlsProcessed, postGresTable);
+			dao.executeInsert(connectionDest, ddlsProcessed, postGresTable);
 			LOG.info("Persisted "+ddlsProcessed.size()+" table ddls to table "+postGresTable);
 			System.out.println("Persisted "+ddlsProcessed.size()+" table ddls to table "+postGresTable);
 			connectionHive.close();
+			connectionDest.close();
+			latch.countDown();
 		}catch(Exception e){
 			e.printStackTrace();
 			LOG.info("Exception persisting ddls to table "+DDLGrabberUtils.getTraceString(e));

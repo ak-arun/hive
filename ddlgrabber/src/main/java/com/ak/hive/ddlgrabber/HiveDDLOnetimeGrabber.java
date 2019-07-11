@@ -53,11 +53,12 @@ public class HiveDDLOnetimeGrabber {
 		confDestDb.setPassword(properties.getProperty("ddlstore.db.user.password"));
 		confDestDb.setDriverClassName(properties.getProperty("ddlstore.db.driver.class"));
 		confDestDb.setConnectString(properties.getProperty("ddlstore.db.connection.string"));
+		confDestDb.setDbType(properties.getProperty("meta.db.type"));
 		
 		Connection metastoreConnection = new ConnectionFactory(confMetastore).getConnectionManager(properties.getProperty("meta.db.type")).getConnection();
-		Connection destinationConnection = new ConnectionFactory(confMetastore).getConnectionManager(properties.getProperty("ddlstore.db.type")).getConnection();
+		//Connection destinationConnection = new ConnectionFactory(confMetastore).getConnectionManager(properties.getProperty("ddlstore.db.type")).getConnection();
 		
-		System.out.println("Connected to postgres"+destinationConnection);
+		//System.out.println("Connected to postgres"+destinationConnection);
 		
 		List<DDLObject> ddls = dao.getDBAndTables(metastoreConnection, properties.getProperty("meta.query"));
 		
@@ -74,7 +75,7 @@ public class HiveDDLOnetimeGrabber {
 		CountDownLatch latch = new CountDownLatch(Iterables.size(ddlPartitions));
 		for(List<DDLObject> ddlObjects : ddlPartitions){
 			System.out.println("Triggering Executor");
-			executor.execute(new DDLPersistTask(ddlObjects, confHive, destinationConnection, properties.getProperty("ddlstore.tablename"),latch));
+			executor.execute(new DDLPersistTask(ddlObjects, confHive, confDestDb, properties.getProperty("ddlstore.tablename"),latch));
 		}
 		latch.await();
 		executor.shutdown();
