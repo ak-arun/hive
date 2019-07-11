@@ -79,7 +79,6 @@ public class HiveDDLOnetimeGrabber {
 		}
 		latch.await();
 		executor.shutdown();
-		destinationConnection.close();
 		LOG.info("Completed loading ddls for table");
 		
 	}
