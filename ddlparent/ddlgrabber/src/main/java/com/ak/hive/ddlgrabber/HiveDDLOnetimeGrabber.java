@@ -70,7 +70,7 @@ public class HiveDDLOnetimeGrabber {
 		Iterable<List<DDLObject>> ddlPartitions = Iterables.partition(ddls, batchCount);
 		CountDownLatch latch = new CountDownLatch(Iterables.size(ddlPartitions));
 		for(List<DDLObject> ddlObjects : ddlPartitions){
-			executor.execute(new DDLPersistTask(ddlObjects, confHive, destinationConnection, properties.getProperty("dest.tablename"),latch));
+			executor.execute(new DDLPersistTask(ddlObjects, confHive, destinationConnection, properties.getProperty("ddlstore.tablename"),latch));
 		}
 		latch.await();
 		executor.shutdown();
