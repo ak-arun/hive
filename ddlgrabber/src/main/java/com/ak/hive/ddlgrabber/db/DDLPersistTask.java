@@ -44,6 +44,7 @@ public class DDLPersistTask implements Runnable{
 	private void persist() {
 		try{
 			connectionHive = new ConnectionFactory(dbConfig).getConnectionManager(DDLGrabberConstants.DBTYPE_HIVE).getConnection();
+			System.out.println("Connected to hive "+connectionHive);
 			dao = new DAO();
 			ddlsProcessed = new ArrayList<DDLObject>();
 			for(DDLObject o : ddls){
@@ -51,10 +52,13 @@ public class DDLPersistTask implements Runnable{
 				o.setDdl(ddlString);
 				ddlsProcessed.add(o);
 			}
+			System.out.println("Processed DDL for batch "+ddlsProcessed.size());
 			ddls.clear();
 			latch.countDown();
+			System.out.println("Executing insert for batch "+ddlsProcessed.size());
 			dao.executeInsert(connectionPostgres, ddlsProcessed, postGresTable);
 			LOG.info("Persisted "+ddlsProcessed.size()+" table ddls to table "+postGresTable);
+			System.out.println("Persisted "+ddlsProcessed.size()+" table ddls to table "+postGresTable);
 			connectionHive.close();
 		}catch(Exception e){
 			e.printStackTrace();

@@ -57,11 +57,14 @@ public class HiveDDLOnetimeGrabber {
 		Connection metastoreConnection = new ConnectionFactory(confMetastore).getConnectionManager(properties.getProperty("meta.db.type")).getConnection();
 		Connection destinationConnection = new ConnectionFactory(confMetastore).getConnectionManager(properties.getProperty("ddlstore.db.type")).getConnection();
 		
+		System.out.println("Connected to postgres"+destinationConnection);
+		
 		List<DDLObject> ddls = dao.getDBAndTables(metastoreConnection, properties.getProperty("meta.query"));
 		
 		metastoreConnection.close();
 		
 		LOG.info("Completed fetching "+ddls.size()+" tables from hive metastore");
+		System.out.println("Completed fetching "+ddls.size()+" tables from hive metastore");
 		
 		int threadCount = Integer.parseInt(properties.getProperty("num.executor"));
 		int batchCount = Integer.parseInt(properties.getProperty("max.items.per.batch"));
@@ -70,7 +73,8 @@ public class HiveDDLOnetimeGrabber {
 		Iterable<List<DDLObject>> ddlPartitions = Iterables.partition(ddls, batchCount);
 		CountDownLatch latch = new CountDownLatch(Iterables.size(ddlPartitions));
 		for(List<DDLObject> ddlObjects : ddlPartitions){
-			executor.execute(new DDLPersistTask(ddlObjects, confHive, destinationConnection, properties.getProperty("dest.tablename"),latch));
+			System.out.println("Triggering Executor");
+			executor.execute(new DDLPersistTask(ddlObjects, confHive, destinationConnection, properties.getProperty("ddlstore.tablename"),latch));
 		}
 		latch.await();
 		executor.shutdown();
