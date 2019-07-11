@@ -32,7 +32,7 @@ public class DDLHookNotificationHandler {
 				if (exception != null) {
 					exception.printStackTrace();
 					LOG.info("Exception while Publishing to kafka"
-							+ Utils.getTraceString(exception));
+							+ DDLGrabberUtils.getTraceString(exception));
 				}
 			}
 		});

@@ -8,7 +8,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Properties;
 
-public class Utils {
+public class DDLGrabberUtils {
 	private static StringWriter sw = null;
 	public static String getTraceString(Exception e){
 		sw = new StringWriter();
