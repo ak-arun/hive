@@ -1,0 +1,98 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.ak.hive</groupId>
+	<artifactId>ddlparent</artifactId>
+	<version>0.0.1</version>
+	<packaging>pom</packaging>
+	<name>ddlparent</name>
+
+	<repositories>
+		<repository>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<id>hortonworks.extrepo</id>
+			<name>Hortonworks HDP</name>
+			<url>http://repo.hortonworks.com/content/repositories/releases</url>
+		</repository>
+
+		<repository>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<id>hortonworks.other</id>
+			<name>Hortonworks Other Dependencies</name>
+			<url>http://repo.hortonworks.com/content/groups/public</url>
+		</repository>
+	</repositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.hive</groupId>
+			<artifactId>hive-exec</artifactId>
+			<version>${hive.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.hive</groupId>
+			<artifactId>hive-jdbc</artifactId>
+			<version>${hive.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-client</artifactId>
+			<version>${hadoop.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.apache.kafka</groupId>
+			<artifactId>kafka-clients</artifactId>
+			<version>${kafka.version}</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<hive.version>1.2.1</hive.version>
+		<hadoop.version>2.7.3</hadoop.version>
+		<postgres.version>42.2.6</postgres.version>
+		<mysql.version>5.1.24</mysql.version>
+		<kafka.version>1.0.0.3.1.0.14-1</kafka.version>
+		<app.home>/apps/ddlgrabber</app.home>
+		<ddlgrabber.version>0.0.1</ddlgrabber.version>
+		
+
+	</properties>
+
+	<modules>
+
+		<module>ddlcommon</module>
+		<module>ddlhook</module>
+		<module>ddlgrabber</module>
+	</modules>
+</project>
