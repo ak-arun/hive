@@ -15,6 +15,7 @@ import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.hive.ql.hooks.ExecuteWithHookContext;
 import org.apache.hadoop.hive.ql.hooks.HookContext;
 import org.apache.hadoop.hive.ql.hooks.WriteEntity;
+import org.apache.hadoop.hive.ql.metadata.Table;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.config.SaslConfigs;
@@ -32,12 +33,11 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 
 
 	private String query;
-	private String tableName;
-	private String databaseName;
 	private HiveConf configuration;
 	private Map<String, Object> propertyMap;
 	private JSONObject notificationObject;
 	private ExecutorService executorService = null;
+	private Table table=null;
 
 	
 	private static final Logger LOG = LoggerFactory.getLogger(HiveDDLGrabberHook.class);
@@ -154,11 +154,13 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 	private ProducerRecord<String, String> generateNotificationRecord(HookContext hookContext) throws JSONException{
 		notificationObject = new JSONObject();
 		for(WriteEntity output : hookContext.getOutputs()){
-			databaseName = databaseName==null?(output.getDatabase()!=null?output.getDatabase().getName():null):databaseName;
-			tableName = tableName==null?(output.getTable()!=null?output.getTable().getTableName():null):tableName;
+			//databaseName = databaseName==null?(output.getDatabase()!=null?output.getDatabase().getName():null):databaseName;
+			table = table==null?(output.getTable()!=null?output.getTable():null):table;
+			//tableName = tableName==null?(output.getTable()!=null?output.getTable().getTableName():null):tableName;
+			//databaseName= databaseName==null ? ((output!=null?output.getTable():null)!=null?output.getTable().getDbName():null): databaseName;
 		}
-		notificationObject.put("database", databaseName);
-		notificationObject.put("table", tableName);
+		notificationObject.put("database", table.getDbName());
+		notificationObject.put("table", table.getTableName());
 		notificationObject.put("dateTime", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
 		notificationObject.put("ddl", query);
 		return new ProducerRecord<String, String>(configuration.get(DDLGrabberConstants.DDL_HOOK_KAFKA_TOPIC_NAME), notificationObject.toString());
