@@ -49,13 +49,13 @@ public class HiveDDLOnetimeGrabber {
 		confMetastore.setConnectString(properties.getProperty("meta.db.connection.string"));
 		
 		DBConfig confDestDb = new DBConfig();
-		confDestDb.setUserName(properties.getProperty("dest.db.user.name"));
-		confDestDb.setPassword(properties.getProperty("dest.db.user.password"));
-		confDestDb.setDriverClassName(properties.getProperty("dest.db.driver.class"));
-		confDestDb.setConnectString(properties.getProperty("dest.db.connection.string"));
+		confDestDb.setUserName(properties.getProperty("ddlstore.db.user.name"));
+		confDestDb.setPassword(properties.getProperty("ddlstore.db.user.password"));
+		confDestDb.setDriverClassName(properties.getProperty("ddlstore.db.driver.class"));
+		confDestDb.setConnectString(properties.getProperty("ddlstore.db.connection.string"));
 		
 		Connection metastoreConnection = new ConnectionFactory(confMetastore).getConnectionManager(properties.getProperty("meta.db.type")).getConnection();
-		Connection destinationConnection = new ConnectionFactory(confMetastore).getConnectionManager(properties.getProperty("dest.db.type")).getConnection();
+		Connection destinationConnection = new ConnectionFactory(confMetastore).getConnectionManager(properties.getProperty("ddlstore.db.type")).getConnection();
 		
 		List<DDLObject> ddls = dao.getDBAndTables(metastoreConnection, properties.getProperty("meta.query"));
 		
