@@ -159,9 +159,9 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 			//tableName = tableName==null?(output.getTable()!=null?output.getTable().getTableName():null):tableName;
 			//databaseName= databaseName==null ? ((output!=null?output.getTable():null)!=null?output.getTable().getDbName():null): databaseName;
 		}
-		notificationObject.put("database", table.getDbName());
-		notificationObject.put("table", table.getTableName());
-		notificationObject.put("dateTime", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
+		notificationObject.put("db_name", table.getDbName());
+		notificationObject.put("table_name", table.getTableName());
+		notificationObject.put("dump_time", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
 		notificationObject.put("ddl", query);
 		return new ProducerRecord<String, String>(configuration.get(DDLGrabberConstants.DDL_HOOK_KAFKA_TOPIC_NAME), notificationObject.toString());
 	}
