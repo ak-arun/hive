@@ -8,7 +8,7 @@
 	<name>ddlparent</name>
 
 	<repositories>
-	
+
 		<repository>
 			<releases>
 				<enabled>true</enabled>
@@ -32,17 +32,6 @@
 			<name>Hortonworks Other Dependencies</name>
 			<url>http://repo.hortonworks.com/content/groups/public</url>
 		</repository>
-<repository>
-			<id>central</id>
-			<name>central</name>
-			<url>https://repo.maven.apache.org/maven2</url>
-			<layout>default</layout>
-			<releases>
-				<enabled>true</enabled>
-				<checksumPolicy>warn</checksumPolicy>
-			</releases>
-		</repository>
-		
 	</repositories>
 
 	<dependencies>
@@ -83,8 +72,6 @@
 		</dependency>
 	</dependencies>
 
-
-
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
@@ -96,8 +83,6 @@
 		<kafka.version>1.0.0.3.1.0.14-1</kafka.version>
 		<app.home>/apps/ddlgrabber</app.home>
 		<ddlgrabber.version>0.0.1</ddlgrabber.version>
-		<guava.version>21.0</guava.version>
-
 	</properties>
 
 	<modules>

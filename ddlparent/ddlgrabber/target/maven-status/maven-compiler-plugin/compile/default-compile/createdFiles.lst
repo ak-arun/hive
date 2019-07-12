@@ -1,0 +1,8 @@
+com/ak/hive/ddlgrabber/db/DAO.class
+com/ak/hive/ddlgrabber/db/DDLPersistTask.class
+com/ak/hive/ddlgrabber/db/ConnectionFactory.class
+com/ak/hive/ddlgrabber/db/HiveConnectionManager.class
+com/ak/hive/ddlgrabber/HiveDDLOnetimeGrabber.class
+com/ak/hive/ddlgrabber/db/MySQLConnectionManager.class
+com/ak/hive/ddlgrabber/db/ConnectionManager.class
+com/ak/hive/ddlgrabber/db/PostgresConnectionManager.class

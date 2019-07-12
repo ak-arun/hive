@@ -1,0 +1,8 @@
+/Users/akeezhadath/Desktop/ddlparent/ddlgrabber/src/main/java/com/ak/hive/ddlgrabber/db/DDLPersistTask.java
+/Users/akeezhadath/Desktop/ddlparent/ddlgrabber/src/main/java/com/ak/hive/ddlgrabber/db/DAO.java
+/Users/akeezhadath/Desktop/ddlparent/ddlgrabber/src/main/java/com/ak/hive/ddlgrabber/db/MySQLConnectionManager.java
+/Users/akeezhadath/Desktop/ddlparent/ddlgrabber/src/main/java/com/ak/hive/ddlgrabber/db/PostgresConnectionManager.java
+/Users/akeezhadath/Desktop/ddlparent/ddlgrabber/src/main/java/com/ak/hive/ddlgrabber/db/ConnectionFactory.java
+/Users/akeezhadath/Desktop/ddlparent/ddlgrabber/src/main/java/com/ak/hive/ddlgrabber/db/ConnectionManager.java
+/Users/akeezhadath/Desktop/ddlparent/ddlgrabber/src/main/java/com/ak/hive/ddlgrabber/db/HiveConnectionManager.java
+/Users/akeezhadath/Desktop/ddlparent/ddlgrabber/src/main/java/com/ak/hive/ddlgrabber/HiveDDLOnetimeGrabber.java
