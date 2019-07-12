@@ -44,6 +44,12 @@ public class DBConfig {
 	public void setTableName(String tableName) {
 		this.tableName = tableName;
 	}
+	public String getDbType() {
+		return dbType;
+	}
+	public void setDbType(String dbType) {
+		this.dbType = dbType;
+	}
 	private String driverClassName;
 	private String connectString;
 	private String userName;
@@ -51,6 +57,7 @@ public class DBConfig {
 	private String keytab;
 	private String principal;
 	private String tableName;
+	private String dbType;
 	
 	
 	

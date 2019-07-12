@@ -37,7 +37,7 @@ public class DAO {
 				ps.setTimestamp(4,ddl.getTimestamp());
 				ps.addBatch();
 			}
-			ps.executeLargeBatch();
+			ps.executeBatch();
 			return true;
 		}catch (Exception e){
 			LOG.info("Exception encountered while batch executeInsert "+DDLGrabberUtils.getTraceString(e));
