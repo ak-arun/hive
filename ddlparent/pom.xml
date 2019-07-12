@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.ak.hive</groupId>
@@ -32,6 +31,17 @@
 			<name>Hortonworks Other Dependencies</name>
 			<url>http://repo.hortonworks.com/content/groups/public</url>
 		</repository>
+
+		<repository>
+			<id>central</id>
+			<name>central</name>
+			<url>https://repo.maven.apache.org/maven2</url>
+			<layout>default</layout>
+			<releases>
+				<enabled>true</enabled>
+				<checksumPolicy>warn</checksumPolicy>
+			</releases>
+		</repository>
 	</repositories>
 
 	<dependencies>
@@ -63,6 +73,12 @@
 			<version>${kafka.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>${guava.version}</version>
+		</dependency>
+
 
 		<dependency>
 			<groupId>junit</groupId>
@@ -85,7 +101,7 @@
 		<kafka.version>1.0.0.3.1.0.14-1</kafka.version>
 		<app.home>/apps/ddlgrabber</app.home>
 		<ddlgrabber.version>0.0.1</ddlgrabber.version>
-		
+		<guava.version>19.0</guava.version>
 
 	</properties>
 
