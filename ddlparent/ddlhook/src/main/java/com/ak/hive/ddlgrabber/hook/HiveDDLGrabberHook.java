@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import com.ak.hive.ddlgrabber.util.DDLGrabberConstants;
 import com.ak.hive.ddlgrabber.util.DDLGrabberUtils;
-//import com.ak.hive.ddlgrabber.util.DDLHookNotificationHandler;
 
 
 public class HiveDDLGrabberHook implements ExecuteWithHookContext {
@@ -66,7 +65,6 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 			propertyMap.put(DDLGrabberConstants.KEY_SERIALIZER,DDLGrabberConstants.STRING_SERIALIZER);
 			propertyMap.put(DDLGrabberConstants.VALUE_SERIALIZER,DDLGrabberConstants.STRING_SERIALIZER);
 			propertyMap.put(DDLGrabberConstants.BOOTSTRAP_SERVERS, configuration.get(DDLGrabberConstants.DDL_HOOK_KAFKA_BOOTSTRAP_SERVERS));
-			propertyMap.put(DDLGrabberConstants.ZOOKEEPER_CONNECT,configuration.get(DDLGrabberConstants.DDL_HOOK_KAFKA_ZK_CONNECT));
 			propertyMap.put(DDLGrabberConstants.SASL_KERBEROS_SERVICE_NAME,configuration.get(DDLGrabberConstants.DDL_HOOK_KAFKA_SERVICE_NAME));
 			propertyMap.put(DDLGrabberConstants.SECURITY_PROTOCOL, configuration.get(DDLGrabberConstants.DDL_HOOK_KAFKA_SECURITY_PROTOCOL));
 			
@@ -80,11 +78,6 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 			
 			executorService = Executors.newFixedThreadPool(1);
 			
-			/*
-			 * Dynamic JAAS Configuration as in
-			 * https://cwiki.apache.org/confluence/display/KAFKA/KIP-85%3A+Dynamic+JAAS+configuration+for+Kafka+clients
-			 */
-			
 			
 			if(isDDL()){
 				
@@ -92,6 +85,12 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 				
 			final ProducerRecord<String, String> record = generateNotificationRecord(hookContext);
 			// json message 
+			
+			
+			/*
+			 * Dynamic JAAS Configuration as in
+			 * https://cwiki.apache.org/confluence/display/KAFKA/KIP-85%3A+Dynamic+JAAS+configuration+for+Kafka+clients
+			 */
 			
 			if(UserGroupInformation.isLoginKeytabBased()){
 				// as in hs2, use the hive service principal for authorizing kafka writes
@@ -106,8 +105,7 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 				
 				executorService.submit(new Callable<Object>() {
 					public Object call() throws Exception {
-						//new DDLHookNotificationHandler(propertyMap, record).send();
-						send(record);
+						notifyRecord(record);
 						return null;
 					}
 				});
@@ -118,7 +116,7 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 				propertyMap.put(SaslConfigs.SASL_JAAS_CONFIG,DDLGrabberConstants.JAAS_CONFIG_NO_KEYTAB
 						.replace(
 								"<KAFKA_SERVICE_NAME>",configuration.get(DDLGrabberConstants.DDL_HOOK_KAFKA_SERVICE_NAME)));
-				hookContext.getUgi().doAs(new PrivilegedExceptionActionImplementation(record, executorService/*, propertyMap*/));
+				hookContext.getUgi().doAs(new PrivilegedExceptionActionImplementation(record, executorService));
 			}
 			executorService.shutdown();
 			}
@@ -137,20 +135,17 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 			PrivilegedExceptionAction {
 		private final ProducerRecord<String, String> record;
 		private final ExecutorService executorService;
-		//private final Map<String, Object> propertyMap;
 
 		private PrivilegedExceptionActionImplementation(
-				ProducerRecord<String, String> record,ExecutorService executorService/*,Map<String, Object> propertyMap*/) {
+				ProducerRecord<String, String> record,ExecutorService executorService) {
 			this.record = record;
 			this.executorService=executorService;
-			//this.propertyMap=propertyMap;
 		}
 
 		public Object run() throws Exception {
 			executorService.submit(new Callable<Object>() {
 				public Object call() throws Exception {
-					//new DDLHookNotificationHandler(propertyMap, record).send();
-					send(record);
+					notifyRecord(record);
 					return null;
 				}
 			});
@@ -160,8 +155,6 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 	private ProducerRecord<String, String> generateNotificationRecord(HookContext hookContext) throws JSONException{
 		notificationObject = new JSONObject();
 		for(WriteEntity output : hookContext.getOutputs()){
-			//databaseName = databaseName==null?(output.getDatabase()!=null?output.getDatabase().getName():null):databaseName;
-			//tableName = tableName==null?(output.getTable()!=null?output.getTable().getTableName():null):tableName;
 			table = table==null?(output.getTable()!=null?output.getTable():null):table;
 		}
 		notificationObject.put("db_name", table.getDbName());
@@ -171,7 +164,7 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 		return new ProducerRecord<String, String>(configuration.get(DDLGrabberConstants.DDL_HOOK_KAFKA_TOPIC_NAME), notificationObject.toString());
 	}
 	
-	public void send(ProducerRecord<String, String> record) {
+	public void notifyRecord(ProducerRecord<String, String> record) {
 		KafkaProducer<String, String> producer = new KafkaProducer<String, String>(propertyMap);
 		producer.send(record, new Callback() {
 			public void onCompletion(RecordMetadata metadata,
@@ -180,6 +173,7 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 					exception.printStackTrace();
 					LOG.info("Exception while Publishing to kafka"
 							+ DDLGrabberUtils.getTraceString(exception));
+					
 				}
 			}
 		});
