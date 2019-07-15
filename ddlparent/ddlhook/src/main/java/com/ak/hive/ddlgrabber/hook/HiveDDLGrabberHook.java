@@ -154,13 +154,27 @@ public class HiveDDLGrabberHook implements ExecuteWithHookContext {
 	}
 	private ProducerRecord<String, String> generateNotificationRecord(HookContext hookContext) throws JSONException{
 		notificationObject = new JSONObject();
-		for(WriteEntity output : hookContext.getOutputs()){
-			table = table==null?(output.getTable()!=null?output.getTable():null):table;
-		}
-		notificationObject.put("db_name", table.getDbName());
-		notificationObject.put("table_name", table.getTableName());
 		notificationObject.put("dump_time", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date()));
 		notificationObject.put("ddl", query);
+		if (query.toLowerCase().trim().startsWith("create database")
+				|| (query.toLowerCase().trim().startsWith("alter database"))
+				|| (query.toLowerCase().trim().startsWith("alter schema"))
+				|| (query.toLowerCase().trim().startsWith("create schema"))) {
+			String dbName = null;
+			for (WriteEntity output : hookContext.getOutputs()) {
+				dbName = dbName == null ? (output.getDatabase() != null ? output
+						.getDatabase().getName() : null)
+						: dbName;
+			}
+			notificationObject.put("db_name", dbName);
+			notificationObject.put("table_name", "");
+		}else{
+			for(WriteEntity output : hookContext.getOutputs()){
+				table = table==null?(output.getTable()!=null?output.getTable():null):table;
+			}
+			notificationObject.put("db_name", table.getDbName());
+			notificationObject.put("table_name", table.getTableName());
+		}
 		return new ProducerRecord<String, String>(configuration.get(DDLGrabberConstants.DDL_HOOK_KAFKA_TOPIC_NAME), notificationObject.toString());
 	}
 	
