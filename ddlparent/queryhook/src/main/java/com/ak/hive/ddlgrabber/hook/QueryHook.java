@@ -93,8 +93,8 @@ public class QueryHook implements ExecuteWithHookContext {
               List<Task<?>> rootTasks = plan.getRootTasks();
               System.out.println("PRE_EXEC_HOOK getRootTasks");
               JSONObject explainPlan = explain.getJSONPlan(null, null, rootTasks,
-                   plan.getFetchTask(), true, false, false);
-              System.out.println("PRE_EXEC_HOOK JSONObject explainPlan");
+                   plan.getFetchTask(), true, true, true);
+              System.out.println("PRE_EXEC_HOOK JSONObject explainPlan"+explainPlan);
               fireAndForget(conf, createPreHookEvent(queryId, query,
                    explainPlan, queryStartTime, user, requestuser, numMrJobs, numTezJobs, opId));
               System.out.println("PRE_EXEC_HOOK fireAndForget");
