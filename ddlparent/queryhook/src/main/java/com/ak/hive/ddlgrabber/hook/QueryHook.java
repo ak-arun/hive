@@ -65,7 +65,6 @@ public class QueryHook implements ExecuteWithHookContext {
         public void run() {
           try {
             QueryPlan plan = hookContext.getQueryPlan();
-            System.out.println("Extracted Query Plan");
             if (plan == null) {
               return;
             }
@@ -79,35 +78,34 @@ public class QueryHook implements ExecuteWithHookContext {
             }
             int numMrJobs = Utilities.getMRTasks(plan.getRootTasks()).size();
             int numTezJobs = Utilities.getTezTasks(plan.getRootTasks()).size();
-            if (numMrJobs + numTezJobs <= 0) {
-              return; 
-            }
-            System.out.println("Hook Type "+hookContext.getHookType());
+            
             
             
 
             switch(hookContext.getHookType()) {
             case PRE_EXEC_HOOK:
-            System.out.println("Executing "+HookType.PRE_EXEC_HOOK);
+            	System.out.println("PRE_EXEC_HOOK");
               ExplainTask explain = new ExplainTask();
               explain.initialize(conf, plan, null);
+              System.out.println("PRE_EXEC_HOOK INIT ExplainTask");
               String query = plan.getQueryStr();
+              System.out.println("PRE_EXEC_HOOK Query "+query);
               List<Task<?>> rootTasks = plan.getRootTasks();
+              System.out.println("PRE_EXEC_HOOK getRootTasks");
               JSONObject explainPlan = explain.getJSONPlan(null, null, rootTasks,
                    plan.getFetchTask(), true, false, false);
+              System.out.println("PRE_EXEC_HOOK JSONObject explainPlan");
               fireAndForget(conf, createPreHookEvent(queryId, query,
                    explainPlan, queryStartTime, user, requestuser, numMrJobs, numTezJobs, opId));
+              System.out.println("PRE_EXEC_HOOK fireAndForget");
               break;
             case POST_EXEC_HOOK:
-            	System.out.println("Executing "+HookType.POST_EXEC_HOOK);
               fireAndForget(conf, createPostOrFailHookEvent(queryId, currentTime, user, requestuser, true, opId));
               break;
             case ON_FAILURE_HOOK:
-            	System.out.println("Executing "+HookType.ON_FAILURE_HOOK);
               fireAndForget(conf, createPostOrFailHookEvent(queryId, currentTime, user, requestuser , false, opId));
               break;
             default:
-              System.out.println("unknown hooktype");
               break;
             }
           } catch (Exception e) {
