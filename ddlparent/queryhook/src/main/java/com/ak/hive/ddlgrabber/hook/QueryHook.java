@@ -15,6 +15,7 @@ import org.apache.hadoop.hive.ql.exec.Task;
 import org.apache.hadoop.hive.ql.exec.Utilities;
 import org.apache.hadoop.hive.ql.hooks.ExecuteWithHookContext;
 import org.apache.hadoop.hive.ql.hooks.HookContext;
+import org.apache.hadoop.hive.ql.hooks.HookContext.HookType;
 import org.apache.hadoop.util.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -64,6 +65,7 @@ public class QueryHook implements ExecuteWithHookContext {
         public void run() {
           try {
             QueryPlan plan = hookContext.getQueryPlan();
+            System.out.println("Extracted Query Plan");
             if (plan == null) {
               return;
             }
@@ -80,9 +82,13 @@ public class QueryHook implements ExecuteWithHookContext {
             if (numMrJobs + numTezJobs <= 0) {
               return; 
             }
+            System.out.println("Hook Type "+hookContext.getHookType());
+            
+            
 
             switch(hookContext.getHookType()) {
             case PRE_EXEC_HOOK:
+            System.out.println("Executing "+HookType.PRE_EXEC_HOOK);
               ExplainTask explain = new ExplainTask();
               explain.initialize(conf, plan, null);
               String query = plan.getQueryStr();
@@ -93,13 +99,15 @@ public class QueryHook implements ExecuteWithHookContext {
                    explainPlan, queryStartTime, user, requestuser, numMrJobs, numTezJobs, opId));
               break;
             case POST_EXEC_HOOK:
-              fireAndForget(conf, createPostHookEvent(queryId, currentTime, user, requestuser, true, opId,"post"));
+            	System.out.println("Executing "+HookType.POST_EXEC_HOOK);
+              fireAndForget(conf, createPostOrFailHookEvent(queryId, currentTime, user, requestuser, true, opId));
               break;
             case ON_FAILURE_HOOK:
-              fireAndForget(conf, createPostHookEvent(queryId, currentTime, user, requestuser , false, opId,"fail"));
+            	System.out.println("Executing "+HookType.ON_FAILURE_HOOK);
+              fireAndForget(conf, createPostOrFailHookEvent(queryId, currentTime, user, requestuser , false, opId));
               break;
             default:
-              //ignore
+              System.out.println("unknown hooktype");
               break;
             }
           } catch (Exception e) {
@@ -112,6 +120,8 @@ public class QueryHook implements ExecuteWithHookContext {
   JSONObject createPreHookEvent(String queryId, String query, JSONObject explainPlan,
       long startTime, String user, String requestuser, int numMrJobs, int numTezJobs, String opId) throws Exception {
 
+	 System.out.println("createPreHookEvent"); 
+	  
     JSONObject queryObj = new JSONObject();
     queryObj.put("hookType", "pre");
     queryObj.put("queryText", query);
@@ -141,12 +151,13 @@ public class QueryHook implements ExecuteWithHookContext {
     return queryObj;
   }
 
-  JSONObject createPostHookEvent(String queryId, long stopTime, String user, String requestuser, boolean success,
-      String opId, String type) throws JSONException {
+  JSONObject createPostOrFailHookEvent(String queryId, long stopTime, String user, String requestuser, boolean success,
+      String opId) throws JSONException {
+	  System.out.println("createPostOrFailHookEvent"); 
     LOG.info("Received post-hook notification for :" + queryId);
    
     JSONObject queryObj = new JSONObject();
-    queryObj.put("hookType", type);
+    queryObj.put("hookType", success==true?"post":"fail");
 
     queryObj.put("entityId", queryId);
     queryObj.put("entityType", EntityTypes.HIVE_QUERY_ID.name());
