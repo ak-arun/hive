@@ -1,6 +1,5 @@
 package com.ak.hive.ddlgrabber.hook;
 
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -10,12 +9,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.hive.ql.QueryPlan;
-import org.apache.hadoop.hive.ql.exec.ExplainTask;
-import org.apache.hadoop.hive.ql.exec.Task;
 import org.apache.hadoop.hive.ql.exec.Utilities;
 import org.apache.hadoop.hive.ql.hooks.ExecuteWithHookContext;
 import org.apache.hadoop.hive.ql.hooks.HookContext;
-import org.apache.hadoop.hive.ql.hooks.HookContext.HookType;
 import org.apache.hadoop.util.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,7 +24,6 @@ public class QueryHook implements ExecuteWithHookContext {
   private static final Log LOG = LogFactory.getLog(QueryHook.class.getName());
   private static final Object LOCK = new Object();
   private static ExecutorService executor;
-  private enum EntityTypes { HIVE_QUERY_ID };
   private enum EventTypes { QUERY_SUBMITTED, QUERY_COMPLETED };
   private enum OtherInfoTypes { QUERY, STATUS, TEZ, MAPRED };
   private enum PrimaryFilterTypes { user, requestuser, operationid };
@@ -85,18 +80,18 @@ public class QueryHook implements ExecuteWithHookContext {
             switch(hookContext.getHookType()) {
             case PRE_EXEC_HOOK:
             	System.out.println("PRE_EXEC_HOOK");
-              ExplainTask explain = new ExplainTask();
-              explain.initialize(conf, plan, null);
+             // ExplainTask explain = new ExplainTask();
+             // explain.initialize(conf, plan, null);
               System.out.println("PRE_EXEC_HOOK INIT ExplainTask");
               String query = plan.getQueryStr();
               System.out.println("PRE_EXEC_HOOK Query "+query);
-              List<Task<?>> rootTasks = plan.getRootTasks();
+              //List<Task<?>> rootTasks = plan.getRootTasks();
               System.out.println("PRE_EXEC_HOOK getRootTasks");
-              JSONObject explainPlan = explain.getJSONPlan(null, null, rootTasks,
-                   plan.getFetchTask(), true, true, true);
-              System.out.println("PRE_EXEC_HOOK JSONObject explainPlan"+explainPlan);
+              /*JSONObject explainPlan = explain.getJSONPlan(null, null, rootTasks,
+                   plan.getFetchTask(), true, true, true);*/
+             // System.out.println("PRE_EXEC_HOOK JSONObject explainPlan"+explainPlan);
               fireAndForget(conf, createPreHookEvent(queryId, query,
-                   explainPlan, queryStartTime, user, requestuser, numMrJobs, numTezJobs, opId));
+                   null, queryStartTime, user, requestuser, numMrJobs, numTezJobs, opId));
               System.out.println("PRE_EXEC_HOOK fireAndForget");
               break;
             case POST_EXEC_HOOK:
@@ -132,8 +127,7 @@ public class QueryHook implements ExecuteWithHookContext {
     }
 
     
-    queryObj.put("entityId", queryId);
-    queryObj.put("entityType", EntityTypes.HIVE_QUERY_ID.name());
+    queryObj.put("queryId", queryId);
     queryObj.put(PrimaryFilterTypes.user.name(), user);
     queryObj.put(PrimaryFilterTypes.requestuser.name(), requestuser);
     
@@ -157,8 +151,7 @@ public class QueryHook implements ExecuteWithHookContext {
     JSONObject queryObj = new JSONObject();
     queryObj.put("hookType", success==true?"post":"fail");
 
-    queryObj.put("entityId", queryId);
-    queryObj.put("entityType", EntityTypes.HIVE_QUERY_ID.name());
+    queryObj.put("queryId", queryId);
     
     queryObj.put(PrimaryFilterTypes.user.name(), user);
     queryObj.put(PrimaryFilterTypes.requestuser.name(), requestuser);
