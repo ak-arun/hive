@@ -90,5 +90,6 @@
 		<module>ddlcommon</module>
 		<module>ddlhook</module>
 		<module>ddlgrabber</module>
+		<module>queryhook</module>
 	</modules>
 </project>
