@@ -216,6 +216,7 @@ public class QueryHook implements ExecuteWithHookContext {
     queryObj.put("hookType", success==true?"post":"fail");
     queryObj.put("queryId", queryId);
     queryObj.put("queryText", queryString);
+    queryObj.put("isDDL", false);
     queryObj.put(PrimaryFilterTypes.user.name(), user);
     queryObj.put(PrimaryFilterTypes.requestuser.name(), requestuser);
     if (opId != null) {
@@ -261,7 +262,6 @@ public class QueryHook implements ExecuteWithHookContext {
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
  void sendNotification(Map<String,Object>propertyMap,String topicName,boolean keyTabLogin, UserGroupInformation userGroupInformation, String notificationMessage) throws Exception {
-	  System.out.println("Event Notification : "+ notificationMessage);
 	 final ProducerRecord<String, String> record = new ProducerRecord<String, String>(topicName, notificationMessage);
 	  if(keyTabLogin){
 		  notifyRecord(propertyMap,record);
@@ -274,8 +274,6 @@ public class QueryHook implements ExecuteWithHookContext {
 			}
 		});
 	  }
-	  
-	 
   }
   
   private boolean isDDL(String query) {
