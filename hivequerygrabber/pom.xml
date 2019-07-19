@@ -1,27 +1,26 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.ak</groupId>
-  <artifactId>hivequerygrabber</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <packaging>jar</packaging>
+	<groupId>com.ak</groupId>
+	<artifactId>hivequerygrabber</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
 
-  <name>hivequerygrabber</name>
-  <url>http://maven.apache.org</url>
+	<name>hivequerygrabber</name>
+	<url>http://maven.apache.org</url>
 
-  <properties>
+	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<hive.version>1.2.1</hive.version>
 		<hadoop.version>2.7.3</hadoop.version>
 		<kafka.version>1.0.0.3.1.0.14-1</kafka.version>
-		<app.home>/apps/hivequerygrabber</app.home>
-		<ddlgrabber.version>0.0.1</ddlgrabber.version>
+		<app.home>/home/user/rpmtest1</app.home>
 	</properties>
 
-<repositories>
+	<repositories>
 
 		<repository>
 			<releases>
@@ -49,9 +48,9 @@
 	</repositories>
 
 
-  <dependencies>
-  
-  <dependency>
+	<dependencies>
+
+		<dependency>
 			<groupId>org.apache.hive</groupId>
 			<artifactId>hive-exec</artifactId>
 			<version>${hive.version}</version>
@@ -71,22 +70,43 @@
 			<version>${hadoop.version}</version>
 			<scope>provided</scope>
 		</dependency>
-  
-  <dependency>
+
+		<dependency>
 			<groupId>org.apache.kafka</groupId>
 			<artifactId>kafka-clients</artifactId>
 			<version>${kafka.version}</version>
 		</dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-  
-  <build>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4.1</version>
+				<configuration>
+					<descriptors>
+						<descriptor>assembly.xml</descriptor>
+					</descriptors>
+					<appendAssemblyId>false</appendAssemblyId>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>rpm-maven-plugin</artifactId>
@@ -105,8 +125,8 @@
 					<mappings>
 						<mapping>
 							<directory>${app.home}/lib/</directory>
-							<dependency/>
-							<artifact/>
+							<dependency />
+							<artifact />
 						</mapping>
 						<mapping>
 							<directory>${app.home}/conf</directory>
@@ -114,12 +134,9 @@
 							<sources>
 								<source>
 									<location>${project.basedir}/config.template</location>
-									<destination>app.sample.properties</destination>
+									<destination>config.template</destination>
 								</source>
 							</sources>
-						</mapping>
-						<mapping>
-							<directory>${app.home}/logs</directory>
 						</mapping>
 					</mappings>
 				</configuration>
