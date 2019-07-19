@@ -8,17 +8,16 @@ import java.util.concurrent.CountDownLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ak.hive.ddlgrabber.entity.DBConfig;
-import com.ak.hive.ddlgrabber.entity.DDLObject;
-import com.ak.hive.ddlgrabber.util.DDLGrabberConstants;
-import com.ak.hive.ddlgrabber.util.DDLGrabberUtils;
+import com.ak.hive.ddlgrabber.onetimegrabber.entities.DBConfig;
+import com.ak.hive.ddlgrabber.onetimegrabber.entities.DDLObject;
+import com.ak.hive.ddlgrabber.onetimegrabber.util.DDLGrabberUtils;
 
 
 
 public class DDLPersistTask implements Runnable{
 	
 	private static final Logger LOG = LoggerFactory.getLogger(DDLPersistTask.class);
-
+	
 	public void run() {
 		persist();
 	}
@@ -44,8 +43,8 @@ public class DDLPersistTask implements Runnable{
 
 	private void persist() {
 		try{
-			connectionHive = new ConnectionFactory(dbConfig).getConnectionManager(DDLGrabberConstants.DBTYPE_HIVE).getConnection();
-			connectionDest = new ConnectionFactory(destConf).getConnectionManager(destConf.getDbType()).getConnection();
+			connectionHive = new ConnectionFactory(dbConfig).getConnectionManager().getConnection();
+			connectionDest = new ConnectionFactory(destConf).getConnectionManager().getConnection();
 			dao = new DAO();
 			ddlsProcessed = new ArrayList<DDLObject>();
 			for(DDLObject o : ddls){

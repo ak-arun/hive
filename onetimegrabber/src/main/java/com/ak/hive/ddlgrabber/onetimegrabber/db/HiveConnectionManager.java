@@ -6,8 +6,8 @@ import java.sql.DriverManager;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.security.UserGroupInformation;
 
-import com.ak.hive.ddlgrabber.entity.DBConfig;
-import com.ak.hive.ddlgrabber.exception.DBException;
+import com.ak.hive.ddlgrabber.onetimegrabber.entities.DBConfig;
+import com.ak.hive.ddlgrabber.onetimegrabber.exceptions.DBException;
 
 public class HiveConnectionManager extends ConnectionManager {
 

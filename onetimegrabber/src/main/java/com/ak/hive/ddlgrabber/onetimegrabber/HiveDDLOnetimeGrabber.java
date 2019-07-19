@@ -16,12 +16,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ak.hive.ddlgrabber.db.ConnectionFactory;
-import com.ak.hive.ddlgrabber.db.DAO;
-import com.ak.hive.ddlgrabber.db.DDLPersistTask;
-import com.ak.hive.ddlgrabber.entity.DBConfig;
-import com.ak.hive.ddlgrabber.entity.DDLObject;
-import com.ak.hive.ddlgrabber.exception.DBException;
+import com.ak.hive.ddlgrabber.onetimegrabber.db.ConnectionFactory;
+import com.ak.hive.ddlgrabber.onetimegrabber.db.DAO;
+import com.ak.hive.ddlgrabber.onetimegrabber.db.DDLPersistTask;
+import com.ak.hive.ddlgrabber.onetimegrabber.entities.DBConfig;
+import com.ak.hive.ddlgrabber.onetimegrabber.entities.DDLObject;
+import com.ak.hive.ddlgrabber.onetimegrabber.exceptions.DBException;
 import com.google.common.collect.Iterables;
 
 public class HiveDDLOnetimeGrabber {
@@ -42,22 +42,23 @@ public class HiveDDLOnetimeGrabber {
 		confHive.setKeytab(properties.getProperty("hive.user.keytab"));
 		confHive.setConnectString(properties.getProperty("hive.connection.string"));
 		confHive.setDriverClassName(properties.getProperty("hive.driver.class"));
+		confHive.setDbType("hive");
 		
 		DBConfig confMetastore = new DBConfig();
 		confMetastore.setUserName(properties.getProperty("meta.db.user.name"));
 		confMetastore.setPassword(properties.getProperty("meta.db.user.password"));
 		confMetastore.setDriverClassName(properties.getProperty("meta.db.driver.class"));
 		confMetastore.setConnectString(properties.getProperty("meta.db.connection.string"));
+		confMetastore.setDbType(properties.getProperty("meta.db.type"));
 		
 		DBConfig confDestDb = new DBConfig();
 		confDestDb.setUserName(properties.getProperty("ddlstore.db.user.name"));
 		confDestDb.setPassword(properties.getProperty("ddlstore.db.user.password"));
 		confDestDb.setDriverClassName(properties.getProperty("ddlstore.db.driver.class"));
 		confDestDb.setConnectString(properties.getProperty("ddlstore.db.connection.string"));
-		confDestDb.setDbType(properties.getProperty("meta.db.type"));
+		confDestDb.setDbType(properties.getProperty("ddlstore.db.type"));
 		
-		Connection metastoreConnection = new ConnectionFactory(confMetastore).getConnectionManager(properties.getProperty("meta.db.type")).getConnection();
-		//Connection destinationConnection = new ConnectionFactory(confMetastore).getConnectionManager(properties.getProperty("ddlstore.db.type")).getConnection();
+		Connection metastoreConnection = new ConnectionFactory(confMetastore).getConnectionManager().getConnection();
 		
 		List<DDLObject> ddls = dao.getDBAndTables(metastoreConnection, properties.getProperty("meta.query"));
 		

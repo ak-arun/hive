@@ -3,8 +3,9 @@ package com.ak.hive.ddlgrabber.onetimegrabber.db;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
-import com.ak.hive.ddlgrabber.entity.DBConfig;
-import com.ak.hive.ddlgrabber.exception.DBException;
+import com.ak.hive.ddlgrabber.onetimegrabber.entities.DBConfig;
+import com.ak.hive.ddlgrabber.onetimegrabber.exceptions.DBException;
+
 
 public abstract class ConnectionManager {
 	

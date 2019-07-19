@@ -10,10 +10,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ak.hive.ddlgrabber.entity.DDLObject;
-import com.ak.hive.ddlgrabber.exception.DBException;
-import com.ak.hive.ddlgrabber.util.DDLGrabberConstants;
-import com.ak.hive.ddlgrabber.util.DDLGrabberUtils;
+import com.ak.hive.ddlgrabber.onetimegrabber.entities.DDLObject;
+import com.ak.hive.ddlgrabber.onetimegrabber.exceptions.DBException;
+import com.ak.hive.ddlgrabber.onetimegrabber.util.DDLGrabberUtils;
 
 public class DAO {
 	
@@ -27,9 +26,17 @@ public class DAO {
 	Statement statement = null;
 	String ddl = null;
 
+	
+	private static final String SHOW_DBS="show databases";
+	private static final String SHOW_TBLS="show tables";
+	private static final String INSERT = "insert into <tablename> values (?,?,?,?)";
+	private static final String USE_DBS="use <databasename>";
+	private static final String SHOW_CREATE_TBL="show create table <tablename>";
+	
+	
 	public  boolean executeInsert(Connection con, List<DDLObject> ddls, String postGresTable) throws DBException{
 		try{
-			ps = con.prepareStatement(DDLGrabberConstants.INSERT.replace("<tablename>", postGresTable));
+			ps = con.prepareStatement(INSERT.replace("<tablename>", postGresTable));
 			for(DDLObject ddl : ddls){
 				ps.setString(1, ddl.getDatabaseName());
 				ps.setString(2, ddl.getTableName());
@@ -49,7 +56,7 @@ public class DAO {
 	public  List<String> getDatabases(Connection con)throws DBException{
 		dbNames = new ArrayList<String>();
 		try{
-			rs = con.createStatement().executeQuery(DDLGrabberConstants.SHOW_DBS);
+			rs = con.createStatement().executeQuery(SHOW_DBS);
 		while(rs.next()){
 			dbNames.add(rs.getString(1));
 		}
@@ -64,8 +71,8 @@ public class DAO {
 		tblNames = new ArrayList<String>();
 		try{
 			statement = con.createStatement();
-			statement.execute(DDLGrabberConstants.USE_DBS.replace("<databasename>", dbName));
-			rs = statement.executeQuery(DDLGrabberConstants.SHOW_TBLS);
+			statement.execute(USE_DBS.replace("<databasename>", dbName));
+			rs = statement.executeQuery(SHOW_TBLS);
 			while(rs.next()){
 				tblNames.add(rs.getString(1));
 			}
@@ -82,7 +89,7 @@ public class DAO {
 		ddl="";
 		try{
 			statement = con.createStatement();
-			rs = statement.executeQuery(DDLGrabberConstants.SHOW_CREATE_TBL.replace("<tablename>", tableName));
+			rs = statement.executeQuery(SHOW_CREATE_TBL.replace("<tablename>", tableName));
 			while(rs.next()){
 				ddl = ddl+" "+rs.getString(1);
 			}
