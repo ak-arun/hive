@@ -1,5 +1,7 @@
 package com.ak.hive.ddlgrabber.hook;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.InetAddress;
 import java.security.PrivilegedExceptionAction;
 import java.text.SimpleDateFormat;
@@ -34,8 +36,6 @@ import org.apache.kafka.common.config.SslConfigs;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.ak.hive.ddlgrabber.util.DDLGrabberConstants;
-import com.ak.hive.ddlgrabber.util.DDLGrabberUtils;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 
@@ -71,6 +71,32 @@ public class QueryHook implements ExecuteWithHookContext {
 	private static final String HIVEHOOK_KAFKA_SECURITY_PROTOCOL = "hivehook.kafka.security.protocol";
 	private static final String HIVEHOOK_KAFKA_SERVICE_NAME = "hivehook.kafka.serviceName";
 	private static final String HIVEHOOK_KAFKA_BOOTSTRAP_SERVERS = "hivehook.kafka.bootstrapServers";
+	
+	private static final String STRING_SERIALIZER = "org.apache.kafka.common.serialization.StringSerializer";
+	private static final String SECURITY_PROTOCOL = "security.protocol";
+	private static final String SASL_KERBEROS_SERVICE_NAME = "sasl.kerberos.service.name";
+	private static final String BOOTSTRAP_SERVERS = "bootstrap.servers";
+	private static final String VALUE_SERIALIZER = "value.serializer";
+	private static final String KEY_SERIALIZER = "key.serializer";
+	private static final String HIVE_SERVER2_KERBEROS_KEYTAB = "hive.server2.authentication.kerberos.keytab";
+	private static final String HIVE_SERVER2_KERBEROS_PRINCIPAL ="hive.server2.authentication.kerberos.principal";
+	
+	private static final String JAAS_CONFIG_WITH_KEYTAB="com.sun.security.auth.module.Krb5LoginModule required "
+            + "useTicketCache=false "
+            + "renewTicket=true "
+            + "serviceName=\"<KAFKA_SERVICE_NAME>\" "
+            + "useKeyTab=true "
+            + "keyTab=\"<KAFKA_SERVICE_KEYTAB>\" "
+            + "principal=\"<KAFKA_SERVICE_PRINCIPAL>\";";
+	
+	private static final String JAAS_CONFIG_NO_KEYTAB="com.sun.security.auth.module.Krb5LoginModule required "
+            + "loginModuleName=com.sun.security.auth.module.Krb5LoginModule "
+            + "renewTicket=true "
+            + "serviceName=\"<KAFKA_SERVICE_NAME>\" "
+            + "useKeyTab=false "
+            + "storeKey=false "
+            + "loginModuleControlFlag=required "
+            + "useTicketCache=true;";
 
   public QueryHook() {
     synchronized(LOCK) {
@@ -90,7 +116,7 @@ public class QueryHook implements ExecuteWithHookContext {
       }
     }
 
-    LOG.info("Created Query Hook");
+    debugLog("Created Query Hook");
   }
 
   @Override
@@ -98,7 +124,7 @@ public class QueryHook implements ExecuteWithHookContext {
 	  
 	Map<String, Object> propertyMap = new HashMap<String, Object>();
     final long currentTime = System.currentTimeMillis();
-    final HiveConf configuration = new HiveConf(hookContext.getConf());
+    HiveConf configuration = new HiveConf(hookContext.getConf());
     
     executor.submit(new Runnable() {
         @Override
@@ -107,11 +133,11 @@ public class QueryHook implements ExecuteWithHookContext {
         	propertyMap.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG,configuration.get(HIVEHOOK_KAFKA_SSLCONTEXT_TRUSTSTORE_FILE));
 			propertyMap.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG,configuration.get(HIVEHOOK_KAFKA_SSLCONTEXT_TRUSTSTORE_PASSWORD));
 			propertyMap.put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG,configuration.get(HIVEHOOK_KAFKA_SSLCONTEXT_TRUSTSTORE_TYPE,"JKS"));
-			propertyMap.put(DDLGrabberConstants.KEY_SERIALIZER,DDLGrabberConstants.STRING_SERIALIZER);
-			propertyMap.put(DDLGrabberConstants.VALUE_SERIALIZER,DDLGrabberConstants.STRING_SERIALIZER);
-			propertyMap.put(DDLGrabberConstants.BOOTSTRAP_SERVERS, configuration.get(HIVEHOOK_KAFKA_BOOTSTRAP_SERVERS));
-			propertyMap.put(DDLGrabberConstants.SASL_KERBEROS_SERVICE_NAME,configuration.get(HIVEHOOK_KAFKA_SERVICE_NAME));
-			propertyMap.put(DDLGrabberConstants.SECURITY_PROTOCOL, configuration.get(HIVEHOOK_KAFKA_SECURITY_PROTOCOL));
+			propertyMap.put(KEY_SERIALIZER,STRING_SERIALIZER);
+			propertyMap.put(VALUE_SERIALIZER,STRING_SERIALIZER);
+			propertyMap.put(BOOTSTRAP_SERVERS, configuration.get(HIVEHOOK_KAFKA_BOOTSTRAP_SERVERS));
+			propertyMap.put(SASL_KERBEROS_SERVICE_NAME,configuration.get(HIVEHOOK_KAFKA_SERVICE_NAME));
+			propertyMap.put(SECURITY_PROTOCOL, configuration.get(HIVEHOOK_KAFKA_SECURITY_PROTOCOL));
 			boolean keyTabLogin=false;
         	
 			/*
@@ -122,21 +148,21 @@ public class QueryHook implements ExecuteWithHookContext {
 			try {
 				if(UserGroupInformation.isLoginKeytabBased()){
 					keyTabLogin=true;
-					propertyMap.put(SaslConfigs.SASL_JAAS_CONFIG,DDLGrabberConstants.JAAS_CONFIG_WITH_KEYTAB
+					propertyMap.put(SaslConfigs.SASL_JAAS_CONFIG,JAAS_CONFIG_WITH_KEYTAB
 							.replace(
 									"<KAFKA_SERVICE_NAME>",configuration.get(HIVEHOOK_KAFKA_SERVICE_NAME))
 							.replace(
-									"<KAFKA_SERVICE_KEYTAB>",configuration.get(DDLGrabberConstants.HIVE_SERVER2_KERBEROS_KEYTAB))
+									"<KAFKA_SERVICE_KEYTAB>",configuration.get(HIVE_SERVER2_KERBEROS_KEYTAB))
 							.replace(
-									"<KAFKA_SERVICE_PRINCIPAL>",configuration.get(DDLGrabberConstants.HIVE_SERVER2_KERBEROS_PRINCIPAL).replace("_HOST", InetAddress.getLocalHost().getCanonicalHostName())));
+									"<KAFKA_SERVICE_PRINCIPAL>",configuration.get(HIVE_SERVER2_KERBEROS_PRINCIPAL).replace("_HOST", InetAddress.getLocalHost().getCanonicalHostName())));
 				}
 				else{
-					propertyMap.put(SaslConfigs.SASL_JAAS_CONFIG,DDLGrabberConstants.JAAS_CONFIG_NO_KEYTAB
+					propertyMap.put(SaslConfigs.SASL_JAAS_CONFIG,JAAS_CONFIG_NO_KEYTAB
 							.replace(
 									"<KAFKA_SERVICE_NAME>",configuration.get(HIVEHOOK_KAFKA_SERVICE_NAME)));
 				}
 			} catch (Exception e1) {
-				LOG.info("Exception during JAAS configuration "+DDLGrabberUtils.getTraceString(e1));
+				debugLog("Exception during JAAS configuration "+getTraceString(e1));
 			} 
 			
 			String topicName = configuration.get(HIVEHOOK_KAFKA_TOPIC_NAME);
@@ -171,7 +197,7 @@ public class QueryHook implements ExecuteWithHookContext {
               break;
             }
           } catch (Exception e) {
-            LOG.info("Failed to submit plan: "+ StringUtils.stringifyException(e));
+        	  debugLog("Failed to submit plan: "+ StringUtils.stringifyException(e));
           }
         }
       });
@@ -184,11 +210,11 @@ public class QueryHook implements ExecuteWithHookContext {
     JSONObject queryObj = new JSONObject();
     queryObj.put("hookType", "pre");
     
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Received pre-hook notification for :" + queryId);
-      LOG.debug("Otherinfo: " + queryObj.toString());
-      LOG.debug("Operation id: <" + opId + ">");
-    }
+    
+    debugLog("Received pre-hook notification for :" + queryId);
+    debugLog("Otherinfo: " + queryObj.toString());
+    debugLog("Operation id: <" + opId + ">");
+   
 
     
     queryObj.put("queryId", queryId);
@@ -210,7 +236,6 @@ public class QueryHook implements ExecuteWithHookContext {
 
   String generatePostExecNotification(String queryId, long stopTime, String user, String requestuser, boolean success,
       String opId, String queryString, Set<WriteEntity> outputs, Set<ReadEntity> inputs) throws JSONException {
-    LOG.info("Received post-hook notification for :" + queryId);
    
     JSONObject queryObj = new JSONObject();
     queryObj.put("hookType", success==true?"post":"fail");
@@ -244,12 +269,14 @@ public class QueryHook implements ExecuteWithHookContext {
     		table = table==null?(output.getTable()!=null?output.getTable():null):table;
     		}
     		try{
+    			//table is null for macros and functions. Expecting a null pointer in that case
     			tableName = table.getTableName();
     			dbName = table.getDbName();
     		}catch(Exception e){
     			tableName = tableName!=null?tableName:"";
     			dbName=dbName!=null?dbName:"";
-    			LOG.info("Error processing query "+queryId+" exception trace "+DDLGrabberUtils.getTraceString(e));
+    			//ignore
+    			debugLog("Error processing query "+queryId+" exception trace "+getTraceString(e));
     		}
     	}
     	queryObj.put("db_name", dbName);
@@ -297,12 +324,24 @@ public class QueryHook implements ExecuteWithHookContext {
 					Exception exception) {
 				if (exception != null) {
 					exception.printStackTrace();
-					LOG.info("Exception while Publishing to kafka"
-							+ DDLGrabberUtils.getTraceString(exception));
+					debugLog("Exception while Publishing to kafka"
+							+ getTraceString(exception));
 					
 				}
 			}
 		});
 		producer.close();
+	}
+  
+	private String getTraceString(Exception e) {
+		StringWriter sw = new StringWriter();
+		e.printStackTrace(new PrintWriter(sw));
+		return sw.toString();
+	}
+	
+	private void debugLog(String message){
+		 if (LOG.isDebugEnabled()) {
+			 LOG.debug(message);
+		 }
 	}
 }
