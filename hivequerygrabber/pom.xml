@@ -17,7 +17,7 @@
 		<hive.version>1.2.1</hive.version>
 		<hadoop.version>2.7.3</hadoop.version>
 		<kafka.version>1.0.0.3.1.0.14-1</kafka.version>
-		<app.home>/home/t15kv4b/rpmtest1</app.home>
+		<app.home>/home/t1/rpmtest1</app.home>
 	</properties>
 
 	<repositories>
